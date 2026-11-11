@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>@@TITLE@@ · 双栏批注</title>
+<style>
+@@FONT_CSS@@
+:root{--navy:#14273e;--paper:#faf8f2;--ink:#263448;--muted:#657080;--rule:#dfddd4;--thesis:#fff0a6;--term:#ffd8d5;--evidence:#d4e8ff;--concession:#d8efdc;--method:#e9defa;--nav-height:64px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-height) + 20px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans","Noto Sans SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.75}
+a{color:#315c8c;text-underline-offset:3px}button{font:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #cd9132;outline-offset:4px}
+.masthead{background:var(--navy);color:#fff;padding:38px max(24px,calc((100vw - 1360px)/2));border-bottom:4px solid #bd9b65}
+.eyebrow{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#c8d5e6}
+h1{font-family:"Lora",Georgia,serif;font-size:clamp(25px,3.1vw,39px);line-height:1.3;margin:12px 0 10px;max-width:1100px;font-weight:600}
+.course{color:#d9e2ed;margin:0 0 20px}.legend{display:flex;flex-wrap:wrap;gap:9px 18px;font-size:12px;color:#e0e7ef}
+.legend span{display:inline-flex;gap:7px;align-items:center}.swatch{width:12px;height:12px;display:inline-block;border-radius:3px}
+.section-nav{position:sticky;top:0;z-index:5;background:#fffef9f5;backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);box-shadow:0 2px 12px #14273e08}
+.nav-inner{max-width:1408px;padding:10px 24px;margin:auto;display:flex;align-items:center;gap:10px 18px}
+.nav-links{display:flex;gap:8px;overflow:auto;flex:1;min-width:0;padding:3px}
+.nav-links a{white-space:nowrap;color:var(--navy);text-decoration:none;font-size:13px;padding:6px 11px;border-radius:5px}
+.nav-links a:hover{background:#eee9dc}.controls{display:flex;gap:6px;flex-shrink:0}
+.controls button{border:1px solid #d9d8d0;color:var(--navy);background:#fffdf7;border-radius:5px;padding:5px 9px;font-size:12px}
+.controls button[aria-pressed="true"]{background:var(--navy);color:white;border-color:var(--navy)}
+main{max-width:1408px;margin:auto;padding:26px 24px 55px}
+.source-note{border:1px solid #e1dcca;border-left:3px solid #b2905b;background:#f4f0e5;padding:14px 20px;font-size:13px;margin-bottom:28px}
+.source-note p{margin:4px 0}.source-note ul{margin:6px 0;padding-left:20px}.status{font-weight:600;color:#805319}
+.column-labels{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:36px;font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--rule);padding-bottom:12px}
+.reading-section{margin-top:35px}.section-heading{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--rule);padding:0 0 12px;margin:0 0 8px;font-size:21px;color:var(--navy);font-weight:600}
+.reading-section summary{cursor:pointer}.reading-section details>.section-heading{list-style:revert}
+.paragraph-row{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:36px;padding:26px 0;border-bottom:1px solid var(--rule);align-items:start;scroll-margin-top:calc(var(--nav-height) + 15px)}
+.source-locator{font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;line-height:1.5}
+.source-locator a{text-decoration:none;font-weight:600}.original{font-family:"Lora",Georgia,"Times New Roman",serif;font-size:17px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere}
+.original mark{color:inherit;padding:1px 2px;border-radius:3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+mark.thesis{background:var(--thesis)}mark.term{background:var(--term)}mark.evidence{background:var(--evidence)}mark.concession{background:var(--concession)}mark.method{background:var(--method)}
+body.no-highlights mark{background:transparent}
+.translation{border-top:1px solid #d9d2c2;border-left:2px solid #b1a58d;background:#f0ece2;margin-top:18px;padding:14px 17px;font-size:14px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere}
+.lang-label{display:block;font-family:"IBM Plex Sans","Microsoft YaHei",sans-serif;font-size:10px;color:#8a7d67;letter-spacing:.12em;margin-bottom:4px}
+.notes{min-width:0;display:flex;flex-direction:column;gap:12px}
+.note-card{padding:15px 17px;border-left:3px solid #7b8ba1;border-radius:0 5px 5px 0;font-size:13px;line-height:1.85;overflow-wrap:anywhere}
+.paper-card{background:#edf1f6;border-color:#456383}.analysis-card{background:#f0edf5;border-color:#87709f}
+.external-card{background:#edf3ef;border-color:#647f70}
+.note-title{font-size:13px;font-weight:600;margin:0 0 3px;color:var(--navy)}
+.note-explainer{font-size:10px;line-height:1.6;color:var(--muted);margin:0 0 11px}
+.note-card p{margin:5px 0}.note-card ol{padding-left:18px;margin:6px 0}
+.note-card li+li{margin-top:12px}
+.tag{display:inline-block;font-size:9px;letter-spacing:.05em;color:#5e6f85;margin-left:5px}
+.source-quote{font-family:"Lora",Georgia,serif;font-size:12px;margin:7px 0;padding-left:10px;border-left:1px solid #b7c6d6;color:#536379;white-space:pre-wrap}
+.refs{font-size:11px;display:flex;gap:7px;flex-wrap:wrap;margin:6px 0}
+.reason{color:#687080;font-size:12px}.analysis-item+.analysis-item{border-top:1px solid #ded6e6;padding-top:9px;margin-top:10px}
+.uncertainty{background:#fff0d8;color:#835c27;padding:9px 12px;font-size:12px;margin-top:12px;border-left:2px solid #b78b42}
+figure{margin:18px 0}figure img{display:block;max-width:100%;max-height:850px;height:auto;margin:auto;border:1px solid var(--rule)}
+figure figcaption{font-size:11px;color:var(--muted);margin-top:6px}.overview{margin-top:52px;padding-top:20px;border-top:3px solid var(--navy)}
+.overview h2{font-size:25px;color:var(--navy)}.chain{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:24px 0}
+.chain-card{background:#f0ece2;border:1px solid #dfd8c9;padding:16px;position:relative;font-size:13px;overflow-wrap:anywhere}
+.chain-card:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:13px;color:#8b7b61;z-index:1}
+.chain-stage{font-size:12px;font-weight:600;color:#7f6741;margin:0 0 10px}.chain-card p{margin:6px 0}
+.synthesis{background:#edeff1;border-left:3px solid #456383;padding:18px 22px;margin-bottom:14px}
+.synthesis h3,.assessment h3{margin:0 0 9px;font-size:15px}.synthesis p,.assessment p{margin:6px 0}
+.assessments{display:grid;grid-template-columns:1fr 1fr;gap:15px}.assessment{padding:18px 22px;background:#f1edf5;border-left:3px solid #87709f;font-size:14px}
+.footer{font-size:11px;color:var(--muted);margin:35px 0 0}
+.font-license{font-size:10px;white-space:pre-wrap;max-height:200px;overflow:auto}
+body.only-paper .analysis-card,body.only-paper .external-card{display:none}
+body.only-analysis .paper-card,body.only-analysis .external-card{display:none}
+body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overview [data-provenance="paper"]{display:none}
+@media(max-width:1000px){.paragraph-row,.column-labels{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:23px}.nav-inner{flex-wrap:wrap;gap:5px}.nav-links{flex-basis:100%}.controls{padding:0 3px}.chain{grid-template-columns:1fr}.chain-card:not(:last-child)::after{content:"↓";right:15px;top:auto;bottom:-16px}.chain-card{padding:13px 16px}}
+@media(max-width:760px){.masthead{padding:27px 19px}.course{font-size:13px}main{padding:20px 18px 38px}.nav-inner{padding:7px 14px}.column-labels{display:none}.paragraph-row{grid-template-columns:1fr;gap:17px;padding:23px 0}.original{font-size:16px}.translation{font-size:14px}.notes{gap:10px}.assessments{grid-template-columns:1fr}.source-note{padding:12px 14px}.section-heading{font-size:19px}.legend{gap:7px 13px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{html{scroll-padding-top:0}body{font-size:10pt;background:white}.masthead{color:#14273e;background:white;padding:0 0 16px}.eyebrow,.course,.legend{color:#47566a}.section-nav,.column-labels{display:none}main{max-width:none;padding:12px 0}.paragraph-row{gap:20px;padding:16px 0;break-inside:auto}.original{font-size:10.5pt;line-height:1.7}.translation{font-size:9.5pt}.note-card{font-size:8.5pt;break-inside:avoid}.overview{break-before:page}.chain{grid-template-columns:1fr}.chain-card::after{display:none}a{color:inherit}mark,.note-card,.translation,.chain-card{print-color-adjust:exact;-webkit-print-color-adjust:exact}.reading-section details:not([open])>*:not(summary){display:block}body.only-paper .analysis-card,body.only-paper .external-card,body.only-analysis .paper-card,body.only-analysis .external-card{display:block}body.only-paper .overview [data-provenance],body.only-analysis .overview [data-provenance]{display:block}}
+</style>
+</head>
+<body>
+<header class="masthead" id="top">
+<div class="eyebrow">Argument &amp; Evidence · Bilingual Reader</div>
+<h1>@@TITLE@@</h1>
+<p class="course">@@COURSE@@</p>
+<div class="legend" aria-label="英文高亮颜色图例">
+<span><i class="swatch" style="background:var(--thesis)"></i>核心论点 / thesis</span>
+<span><i class="swatch" style="background:var(--term)"></i>关键概念 / 术语</span>
+<span><i class="swatch" style="background:var(--evidence)"></i>实证证据 / 数据</span>
+<span><i class="swatch" style="background:var(--concession)"></i>让步 / 反驳处理</span>
+<span><i class="swatch" style="background:var(--method)"></i>方法论说明</span>
+</div>
+</header>
+<nav class="section-nav" aria-label="章节导航"><div class="nav-inner">
+<div class="nav-links">@@NAV@@<a href="#argument-overview">论证总览</a></div>
+<div class="controls" aria-label="阅读显示控制">
+<button type="button" id="highlights-toggle" aria-pressed="true">五色高亮</button>
+<button type="button" data-filter="all" aria-pressed="true">全部批注</button>
+<button type="button" data-filter="paper" aria-pressed="false">作者明示</button>
+<button type="button" data-filter="analysis" aria-pressed="false">模型分析</button>
+</div></div></nav>
+<main>
+<aside class="source-note" aria-label="来源范围与缺失">@@SOURCE_NOTE@@</aside>
+<div class="column-labels"><span>原文与中文译文 · Source &amp; Translation</span><span>逐段批注 · Paper / Analysis</span></div>
+@@BODY@@
+<section class="overview" id="argument-overview"><h2>全文论证结构总览</h2>
+<p class="reason">以下骨架按所声明材料范围整理。概括与评价属于模型分析，明示转述另行标注。</p>
+<div class="chain">@@CHAIN@@</div>
+<div class="synthesis" @@ONE_ATTR@@><h3>作者核心主张 · 一句话版本</h3>@@ONE@@</div>
+<div class="assessments"><div class="assessment" data-provenance="analysis"><h3>论证最强处 <span class="tag">[Analysis]</span></h3>@@STRONGEST@@</div><div class="assessment" data-provenance="analysis"><h3>论证最弱处 <span class="tag">[Analysis]</span></h3>@@WEAKEST@@</div></div>
+</section>
+<footer class="footer"><p>五色描述论证内容，不表示可信度。[Paper] 表示论文明确陈述；[Analysis] 表示模型依据原文作出的解读。请结合原论文核验关键结论。</p>@@LICENSES@@</footer>
+</main>
+<script>
+(() => {
+  const body = document.body;
+  const nav = document.querySelector('.section-nav');
+  const resize = () => document.documentElement.style.setProperty('--nav-height', `${nav.offsetHeight}px`);
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(nav);
+  window.addEventListener('resize', resize); resize();
+  document.getElementById('highlights-toggle').addEventListener('click', e => {
+    const off = body.classList.toggle('no-highlights');
+    e.currentTarget.setAttribute('aria-pressed', String(!off));
+  });
+  document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
+    body.classList.remove('only-paper','only-analysis');
+    if (button.dataset.filter !== 'all') body.classList.add(`only-${button.dataset.filter}`);
+    document.querySelectorAll('[data-filter]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+  }));
+  const reveal = hash => {
+    if (!hash || hash === '#') return;
+    const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (!target) return;
+    let node = target.parentElement;
+    while (node) { if (node.tagName === 'DETAILS') node.open = true; node = node.parentElement; }
+    requestAnimationFrame(() => target.scrollIntoView({block:'start'}));
+  };
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', () => reveal(a.hash)));
+  window.addEventListener('hashchange', () => reveal(location.hash));
+  if (location.hash) reveal(location.hash);
+  let closedBeforePrint = [];
+  window.addEventListener('beforeprint', () => {
+    closedBeforePrint = Array.from(document.querySelectorAll('details:not([open])'));
+    closedBeforePrint.forEach(d => d.open = true);
+  });
+  window.addEventListener('afterprint', () => closedBeforePrint.forEach(d => d.open = false));
+})();
+</script>
+</body>
+</html>
