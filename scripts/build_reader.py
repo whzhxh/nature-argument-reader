@@ -90,6 +90,28 @@ def validate_summary(item, blocks, name, only_analysis=False):
         validate_analysis(item, blocks, name)
 
 
+def bibliography_index(blocks):
+    """Use bibliography labels, never block order, to resolve numeric citations."""
+    result = {}
+    for block in blocks.values():
+        number = block.get("reference_number")
+        if number is not None:
+            require(block["kind"] == "reference" and type(number) is int and number > 0,
+                    f"{block['id']}: reference_number 只允许参考文献使用正整数")
+        if block["kind"] != "reference":
+            continue
+        label = re.match(r"^\s*\[([1-9][0-9]*)\]", block["en"])
+        if label:
+            inferred = int(label[1])
+            require(number is None or number == inferred,
+                    f"{block['id']}: reference_number 与原文编号冲突")
+            number = inferred
+        if number is not None:
+            require(number not in result, f"参考文献编号重复: {number}")
+            result[number] = block["id"]
+    return result
+
+
 def validate(data):
     require(isinstance(data, dict), "根必须为对象")
     text(data.get("title"), "title")
@@ -139,7 +161,9 @@ def validate(data):
             else:
                 require("pdf_page" not in locator, f"{bid}: 当前模式不得填 PDF 页码")
             require(isinstance(block.get("uncertainty", ""), str), f"{bid}: uncertainty 必须为文本")
+            require(type(block.get("link_citations", True)) is bool, f"{bid}: link_citations 必须为布尔值")
             highlight_ranges(block)
+    bibliography_index(blocks)
     expected = source.get("expected_block_ids")
     require(isinstance(expected, list) and bool(expected) and all(valid_id(x) for x in expected),
             "必须提供提取阶段的 expected_block_ids 清单")
@@ -214,13 +238,57 @@ def summary_html(item, show_label=True):
     return prefix + analysis_html(item)
 
 
-def original_html(block):
+def marked_slice(value, start, end, ranges):
     out, position = [], 0
-    for start, end, category in highlight_ranges(block):
-        out.append(esc(block["en"][position:start]))
-        out.append(f'<mark class="{category}" title="{CATEGORIES[category]}">{esc(block["en"][start:end])}</mark>')
-        position = end
-    out.append(esc(block["en"][position:]))
+    position = start
+    for left, right, category in ranges:
+        left, right = max(left, start), min(right, end)
+        if left >= right:
+            continue
+        out.append(esc(value[position:left]))
+        out.append(f'<mark class="{category}" title="{CATEGORIES[category]}">{esc(value[left:right])}</mark>')
+        position = right
+    out.append(esc(value[position:end]))
+    return "".join(out)
+
+
+CITATION_GROUP = re.compile(
+    r"\[(?P<items>[1-9][0-9]*(?:\s*[-–—]\s*[1-9][0-9]*)?"
+    r"(?:\s*[,;，；]\s*[1-9][0-9]*(?:\s*[-–—]\s*[1-9][0-9]*)?)*)\]")
+CITATION_ITEM = re.compile(r"([1-9][0-9]*)(?:\s*[-–—]\s*([1-9][0-9]*))?")
+
+
+def linked_text(block, language, references, used_ids):
+    value = block[language]
+    marks = highlight_ranges(block) if language == "en" else []
+    if block["kind"] == "reference" or not block.get("link_citations", True):
+        return marked_slice(value, 0, len(value), marks)
+    out, position, count = [], 0, 0
+    for group in CITATION_GROUP.finditer(value):
+        for item in CITATION_ITEM.finditer(group["items"]):
+            first = int(item[1])
+            last = int(item[2]) if item[2] else first
+            # Bound range length by the actual bibliography before enumerating.
+            if last < first or last - first >= len(references):
+                continue
+            if not all(number in references for number in range(first, last + 1)):
+                continue
+            start = group.start("items") + item.start()
+            end = group.start("items") + item.end()
+            count += 1
+            cid = f"citation-{block['id']}-{language}-{count}"
+            while cid in used_ids:
+                cid += "-x"
+            used_ids.add(cid)
+            label = f"查看参考文献 {value[start:end]}"
+            if first != last:
+                label += f"（从第 {first} 条开始）"
+            out.append(marked_slice(value, position, start, marks))
+            out.append(f'<a class="citation-link" id="{cid}" href="#{references[first]}" '
+                       f'aria-label="{esc(label)}" title="{esc(label)}">'
+                       + marked_slice(value, start, end, marks) + "</a>")
+            position = end
+    out.append(marked_slice(value, position, len(value), marks))
     return "".join(out)
 
 
@@ -239,9 +307,12 @@ def media_html(media, content_dir):
             f'<figcaption>{esc(media["alt"])}</figcaption></figure>')
 
 
-def render_block(block, content_dir):
+def render_block(block, content_dir, references, used_ids):
     bid = block["id"]
-    original = original_html(block)
+    original = linked_text(block, "en", references, used_ids)
+    translation = linked_text(block, "zh", references, used_ids)
+    return_control = ('<div class="citation-return" hidden><button type="button">'
+                      '↩ 返回刚才的引文</button></div>' if block["kind"] == "reference" else "")
     media = media_html(block["media"], content_dir) if block.get("media") else ""
     uncertainty = (f'<div class="uncertainty">提取 / 来源提示：{esc(block["uncertainty"])}</div>'
                    if block.get("uncertainty") else "")
@@ -264,8 +335,8 @@ def render_block(block, content_dir):
         external += "</div>"
     return f'''<article class="paragraph-row" id="{bid}" data-kind="{esc(block['kind'])}">
 <div class="bilingual"><div class="source-locator"><a href="#{bid}">{bid}</a><span>{esc(block['locator']['label'])}</span></div>
-<div class="original" lang="en">{original}</div>{media}
-<div class="translation" lang="zh-CN"><span class="lang-label">中文译文</span>{esc(block['zh'])}</div>{uncertainty}</div>
+{return_control}<div class="original" lang="en">{original}</div>{media}
+<div class="translation" lang="zh-CN"><span class="lang-label">中文译文</span>{translation}</div>{uncertainty}</div>
 <aside class="notes" aria-label="{bid} 的逐段批注">
 <div class="note-card paper-card" data-provenance="paper"><h3 class="note-title">作者明确说的 <span class="tag">[Paper]</span></h3>
 <p class="note-explainer">原文中的明确陈述或忠实转述；不代表已被独立核实。</p>{paper}</div>
@@ -288,6 +359,8 @@ def font_css(font_path, family):
 
 def build(data, content_dir, lora_font=None, plex_font=None):
     blocks = validate(data)
+    references = bibliography_index(blocks)
+    used_ids = set(blocks) | RESERVED | {s["id"] for s in data["sections"]}
     styles, font_notes, licenses, seen_licenses = [], [], [], set()
     for family, override, filename in [
         ("Lora", lora_font, "Lora.ttf"), ("IBM Plex Sans", plex_font, "IBMPlexSans.ttf")
@@ -308,7 +381,7 @@ def build(data, content_dir, lora_font=None, plex_font=None):
     nav, body = [], []
     for section in data["sections"]:
         nav.append(f'<a href="#{section["id"]}">{esc(section["title"])}</a>')
-        rows = "".join(render_block(b, content_dir) for b in section["blocks"])
+        rows = "".join(render_block(b, content_dir, references, used_ids) for b in section["blocks"])
         if section.get("collapsed"):
             inner = f'<details><summary class="section-heading">{esc(section["title"])}</summary>{rows}</details>'
         else:
