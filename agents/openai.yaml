@@ -1,0 +1,4 @@
+interface:
+  display_name: "论文论证结构双栏批注"
+  short_description: "生成单文件英中对照 HTML，逐段拆解论证结构并区分作者明示与模型推断"
+  default_prompt: "请使用 $nature-argument-reader 将这篇论文制作成完整的英中对照双栏批注 HTML，保留全文并明确区分作者明确说的与模型推断的。"
