@@ -93,11 +93,13 @@ ID 使用字母开头的 ASCII 字母、数字、下划线或短横线，全文�
 
 - 每块 `en`、`zh` 非空，`kind` 可为 `paragraph`、`caption`、`figure`、
   `table`、`equation`、`reference`、`statement`。
-- `author` 必须存在，可为空数组，此时页面明确显示“原文未明确说明”。
+- `author` 必须存在，可为空数组，此时页面省略作者批注卡，不显示占位语。
 - 每个 author 项含至少一条 evidence，短引必须逐字匹配对应 ref 块的 `en`。
   允许跨块引用，但不能用只含术语的孤立短引支持复杂转述。
 - `analysis` 四个槽位必须存在。function 和 logic 为非空对象，
-  technique、caveat 无有意义发现时为 null。
+  technique、caveat 无有意义发现时为 null；null 项不生成标题、分隔线或占位文字。
+  整张批注卡没有内容时省略，整栏为空时不预留空侧栏。
+  缺失或不确定的信息仍通过 source.missing / uncertainty 明确保留。
 - 非空分析项必须有 `text`（判断）、`reason`（推理/适用范围）、
   `refs`（一个或多个真实块 ID）。边界不确定时在 reason 中写明。
 - `highlights` 可空。类别只有 thesis / term / evidence / concession / method。
