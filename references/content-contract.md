@@ -109,6 +109,46 @@ ID 使用字母开头的 ASCII 字母、数字、下划线或短横线，全文�
 - 作者在图注中给出的解释仍是 Paper，而非自动变成模型推断。
   模型评价这段解释是否成立才属于 Analysis。
 
+## 深入分析项（兼容既有四槽位）
+
+`analysis` 可增加 `insights` 数组。缺省为空，不改变旧输入的有效性。
+有深入分析时优先显示这些内容，原四槽位收进“段落作用与论证衔接”。
+按 [deep-analysis.md](deep-analysis.md) 选择视角，不为每段强填相同数量。
+默认只展开第一条判断；该条的推导、影响和核验可展开，其余视角收进“更多分析”。
+没有深入项时只展示段落功能概述，四槽位详情仍可展开。作者短引默认折叠，
+锚点仍可见；这只改变显示方式，不删除原文依据或分析。
+
+```json
+{
+  "analysis": {
+    "function": {"text": "提出机制。", "reason": "从设计目标进入状态更新过程。", "refs": ["S001"]},
+    "logic": {"text": "连接设计与验证。", "reason": "后文实验要检验该机制的预期效果。", "refs": ["S001"]},
+    "technique": null,
+    "caveat": null,
+    "insights": [
+      {
+        "lens": "mechanism",
+        "title": "比较必须先于不可逆状态更新",
+        "text": "此处的关键条件是第一次计算结果只进入影子状态。",
+        "reason": "若第一次已更新被第二次读取的状态，两次结果差异也可能来自输入变化。",
+        "implication": "是否在比较前隔离状态决定了机制解释是否成立。",
+        "check": "沿状态写使能核对首次执行、比较与最终提交的先后顺序。",
+        "refs": ["S001"]
+      }
+    ]
+  }
+}
+```
+
+每条必须有合法 `lens`、`title`、`text`、`reason`、`implication` 及非空真实
+`refs`；`check` 可省略，有值时不得为空。可选 lens：
+mechanism / evidence / assumption / comparison / quantitative / alternative /
+boundary / reproducibility / connection。所有文本为纯文本并转义。
+脚本验证字段和定位，不验证推导的科学正确性，也不自动生成分析。
+
+Paper 和 Analysis 标题下的来源解释分别只在全文各自首张非空卡显示一次；
+后续卡仍保留来源标签。每次生成独立计数，不以浏览器存储记忆。
+
 ## 正文引文与参考文献跳转
 
 每条参考文献使用独立的 `kind: "reference"` 块和稳定 ID，例如 `R01`。
