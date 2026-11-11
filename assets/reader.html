@@ -79,6 +79,20 @@ body.no-highlights mark{background:transparent}
 .quote-details>summary,.insight-details>summary,.extra-insights>summary{cursor:pointer;font-size:11px;color:#70637b}
 .quote-details{margin-top:5px}.insight-details{margin:7px 0}.extra-insights{border-top:1px solid #ded6e6;padding-top:9px;margin-top:10px}
 .role-summary{font-size:12px}
+.local-argument-chain{margin-top:13px}.argument-step{border-left:1px solid #c9bdd3;padding:0 0 15px 13px;margin-left:6px}
+.argument-step:last-child{padding-bottom:0}.argument-step h4{font-size:12px;color:var(--navy);margin:0 0 5px;line-height:1.6}
+.argument-step h4>span{font-size:9px;color:#87709f;margin-right:7px}.argument-extras{margin-top:12px;font-size:11px}
+.term-trigger{display:inline;border:0;border-bottom:1px dotted #8a7499;background:transparent;padding:0;margin:0;color:inherit;font:inherit;line-height:inherit;vertical-align:baseline;text-align:inherit;border-radius:0;cursor:help}
+.term-trigger:hover,.term-trigger[aria-expanded="true"]{color:#5c3d7c;background:#e5dcec}
+.term-popover{position:fixed;z-index:12;display:grid;grid-template-rows:auto minmax(0,1fr);background:#fffdf8;border:1px solid #c6b8d0;border-top:3px solid #87709f;border-radius:7px;box-shadow:0 8px 25px #14273e24;font-size:12px;line-height:1.8;overflow:hidden}
+.term-popover[hidden]{display:none}.term-popover.term-inline{position:relative;width:100%;max-width:100%;margin:8px 0}
+.term-popover header{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:9px 12px;background:#f0edf5;border-bottom:1px solid #e1d8e7}
+.term-popover h2{font-size:14px;margin:0;color:var(--navy)}.term-close{background:transparent;border:0;font-size:20px;line-height:1.2;color:#655375;padding:0 4px}
+.term-popover-content{padding:10px 12px;overflow:auto;overscroll-behavior:contain;min-height:0}
+.term-popover p{margin:5px 0;overflow-wrap:anywhere}.term-popover strong{display:block;font-size:10px;color:#79618e}
+.term-expansion{font-size:11px;color:#657080}.term-provenance{font-size:10px;color:#79618e}
+.term-popover summary{cursor:pointer;font-size:10px;color:#79618e}
+@media print{.term-popover{display:none!important}.term-trigger{border:0;background:transparent;color:inherit}}
 .uncertainty{background:#fff0d8;color:#835c27;padding:9px 12px;font-size:12px;margin-top:12px;border-left:2px solid #b78b42}
 figure{margin:18px 0}figure img{display:block;max-width:100%;max-height:850px;height:auto;margin:auto;border:1px solid var(--rule)}
 figure figcaption{font-size:11px;color:var(--muted);margin-top:6px}.overview{margin-top:52px;padding-top:20px;border-top:3px solid var(--navy)}
@@ -133,6 +147,11 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
 </section>
 <footer class="footer"><p>五色描述论证内容，不表示可信度。[Paper] 表示论文明确陈述；[Analysis] 表示模型依据原文作出的解读。请结合原论文核验关键结论。</p>@@LICENSES@@</footer>
 </main>
+<div id="reader-glossary" hidden>@@GLOSSARY@@</div>
+<aside class="term-popover" id="term-popover" role="region" aria-labelledby="term-popover-title" hidden>
+<header><h2 id="term-popover-title">术语解释</h2><button type="button" class="term-close" aria-label="关闭术语解释">×</button></header>
+<div class="term-popover-content" id="term-popover-content"></div>
+</aside>
 <aside class="reader-preview" id="reader-preview" role="region" aria-labelledby="reader-preview-title" hidden>
 <div class="preview-header"><h2 id="reader-preview-title">图表与参考文献预览</h2><button type="button" class="preview-close" aria-label="关闭预览">×</button></div>
 <div class="preview-content" id="reader-preview-content"></div>
@@ -251,6 +270,7 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
     const p = document.createElement('p'); p.className = className; p.textContent = value; return p;
   };
   const showPreview = anchor => {
+    hideTermPopover();
     clearTimeout(openTimer); cancelClose();
     if (dismissedAnchor === anchor) return;
     const targets = (anchor.dataset.previewTargets || '').split(/\s+/).filter(Boolean);
@@ -357,9 +377,116 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
   window.addEventListener('scroll',queuePosition,{passive:true});
   window.addEventListener('resize',queuePosition);
   document.addEventListener('toggle',queuePosition,true);
+  const termPopover = document.getElementById('term-popover');
+  const termContent = document.getElementById('term-popover-content');
+  const termTitle = document.getElementById('term-popover-title');
+  let activeTerm = null, termOpenTimer, termCloseTimer, termFrame, dismissedTerm = null;
+  function hideTermPopover() {
+    clearTimeout(termOpenTimer); clearTimeout(termCloseTimer);
+    if (activeTerm) activeTerm.setAttribute('aria-expanded','false');
+    activeTerm = null;
+    termPopover.hidden = true;
+  }
+  function positionTermPopover() {
+    if (termPopover.hidden || !activeTerm) return;
+    const row = activeTerm.closest('.paragraph-row');
+    const notes = activeTerm.closest('.notes');
+    const bilingual = row?.querySelector('.bilingual');
+    if (!notes || !bilingual || !activeTerm.getClientRects().length) { hideTermPopover(); return; }
+    const left = bilingual.getBoundingClientRect(), side = notes.getBoundingClientRect();
+    const navBottom = Math.max(0,nav.getBoundingClientRect().bottom), margin = 12;
+    const width = Math.min(390,side.width,innerWidth-side.left-margin);
+    const inlineTerm = () => {
+      // Normal flow is also the fallback when annotations are stacked beneath text.
+      const near = activeTerm.closest('p,h4,.role-summary') || activeTerm.closest('.note-card');
+      if (near && termPopover.previousElementSibling !== near) near.after(termPopover);
+      termPopover.classList.add('term-inline');
+      Object.assign(termPopover.style,{left:'',top:'',width:'100%',maxHeight:'min(380px,65vh)'});
+      termPopover.dataset.placement = 'inline';
+    };
+    if (side.left < left.right - 1 || width < 240 || innerHeight-navBottom < 240) {
+      inlineTerm();
+      return;
+    }
+    if (termPopover.parentElement !== body) body.append(termPopover);
+    termPopover.classList.remove('term-inline');
+    Object.assign(termPopover.style,{width:`${width}px`,maxHeight:`${Math.min(390,innerHeight-navBottom-margin*2)}px`});
+    const r = activeTerm.getBoundingClientRect(), height = termPopover.getBoundingClientRect().height;
+    let top = r.bottom + 8;
+    if (top + height > innerHeight-margin) top = r.top-height-8;
+    top = Math.max(navBottom+margin,Math.min(top,innerHeight-height-margin));
+    Object.assign(termPopover.style,{left:`${side.left}px`,top:`${top}px`});
+    termPopover.dataset.placement = 'sidebar';
+    const box = termPopover.getBoundingClientRect();
+    const overlaps = Array.from(document.querySelectorAll('main .original,main .translation,main .bilingual>figure'))
+      .some(node => {
+        const r = node.getBoundingClientRect();
+        return r.width && r.height && Math.min(box.right,r.right)-Math.max(box.left,r.left)>1
+          && Math.min(box.bottom,r.bottom)-Math.max(box.top,r.top)>1;
+      });
+    if (overlaps) inlineTerm();
+  }
+  function queueTermPosition() {
+    cancelAnimationFrame(termFrame);
+    termFrame = requestAnimationFrame(positionTermPopover);
+  }
+  function showTermPopover(anchor) {
+    clearTimeout(termOpenTimer); clearTimeout(termCloseTimer);
+    if (dismissedTerm === anchor) return;
+    const entry = document.getElementById(anchor.dataset.termId);
+    if (!entry?.classList.contains('glossary-entry')) return;
+    hidePreview();
+    if (activeTerm && activeTerm !== anchor) activeTerm.setAttribute('aria-expanded','false');
+    activeTerm = anchor;
+    anchor.setAttribute('aria-expanded','true');
+    termTitle.textContent = entry.dataset.termTitle;
+    termContent.replaceChildren(...Array.from(entry.childNodes).map(n=>n.cloneNode(true)));
+    termContent.scrollTop = 0;
+    termPopover.hidden = false;
+    positionTermPopover();
+  }
+  function scheduleTermClose() {
+    clearTimeout(termOpenTimer); clearTimeout(termCloseTimer);
+    termCloseTimer = setTimeout(() => {
+      if (!termPopover.matches(':hover') && !termPopover.contains(document.activeElement)
+          && document.activeElement !== activeTerm) hideTermPopover();
+    },450);
+  }
+  document.querySelectorAll('.notes .term-trigger').forEach(anchor => {
+    anchor.removeAttribute('title');
+    anchor.addEventListener('pointerenter', () => {
+      dismissedTerm = null; clearTimeout(termCloseTimer); clearTimeout(termOpenTimer);
+      termOpenTimer = setTimeout(()=>showTermPopover(anchor),160);
+    });
+    anchor.addEventListener('pointerleave',scheduleTermClose);
+    anchor.addEventListener('focus',()=>showTermPopover(anchor));
+    anchor.addEventListener('blur',()=>{ if (dismissedTerm === anchor) dismissedTerm = null; scheduleTermClose(); });
+    anchor.addEventListener('click',()=>{ dismissedTerm = null; showTermPopover(anchor); });
+  });
+  termPopover.addEventListener('pointerenter',()=>clearTimeout(termCloseTimer));
+  termPopover.addEventListener('pointerleave',scheduleTermClose);
+  termPopover.addEventListener('focusin',()=>clearTimeout(termCloseTimer));
+  termPopover.addEventListener('focusout',scheduleTermClose);
+  function dismissTermPopover() {
+    const anchor = activeTerm;
+    dismissedTerm = anchor; hideTermPopover(); anchor?.focus({preventScroll:true});
+  }
+  termPopover.querySelector('.term-close').addEventListener('click',dismissTermPopover);
+  document.addEventListener('keydown',e=>{
+    if (e.key === 'Escape' && !termPopover.hidden) { e.preventDefault(); dismissTermPopover(); }
+  });
+  document.addEventListener('click',e=>{
+    if (activeTerm && !e.target.closest('.term-trigger') && !termPopover.contains(e.target)) hideTermPopover();
+  });
+  window.addEventListener('scroll',queueTermPosition,{passive:true});
+  window.addEventListener('resize',queueTermPosition);
+  document.addEventListener('toggle',queueTermPosition,true);
   let lastCitation = null;
   document.addEventListener('click',e => {
-    if (e.target.closest('summary,.controls')) hidePreview();
+    if (e.target.closest('summary,.controls')) {
+      hidePreview();
+      if (!termPopover.contains(e.target)) hideTermPopover();
+    }
     const a = e.target.closest('a[href^="#"]');
     if (!a) return;
     const source = preview.contains(a) ? previewAnchor : a;
@@ -370,6 +497,7 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
       if (control) control.hidden = false;
     }
     hidePreview();
+    hideTermPopover();
     reveal(a.hash, true);
   });
   document.querySelectorAll('.citation-return button').forEach(button => button.addEventListener('click', () => {
@@ -382,6 +510,7 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
   let closedBeforePrint = [];
   window.addEventListener('beforeprint', () => {
     hidePreview();
+    hideTermPopover();
     closedBeforePrint = Array.from(document.querySelectorAll('details:not([open])'));
     closedBeforePrint.forEach(d => d.open = true);
   });

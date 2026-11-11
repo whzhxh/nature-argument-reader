@@ -207,7 +207,21 @@
                   "S002"
                 ]
               }
-            ]
+            ],
+            "connections": {
+              "before": {
+                "text": "S001 将检测改善限定在固定预算内，本段将这个约束落实为同预算的均匀复制对照，使证据与主张对齐。",
+                "refs": [
+                  "S001"
+                ]
+              },
+              "after": {
+                "text": "S003 用工作负载范围约束这一检测优势，避免将局部观察升级为所有场景的保证。",
+                "refs": [
+                  "S003"
+                ]
+              }
+            }
           }
         }
       ]
@@ -290,7 +304,23 @@
                   "S003"
                 ]
               }
-            ]
+            ],
+            "connections": {
+              "before": {
+                "text": "S002 的检测计数支持已测试条件下的差异，本段进一步判断这份证据能推广到什么范围。",
+                "refs": [
+                  "S002"
+                ]
+              },
+              "after": {
+                "text": "回扣 S001 的受约束主张：现有计数与其相容，但结论仅覆盖 S002 的合成负载与预算条件。",
+                "refs": [
+                  "S001",
+                  "S002"
+                ],
+                "closure": true
+              }
+            }
           }
         }
       ]
@@ -410,5 +440,54 @@
         "S003"
       ]
     }
-  }
+  },
+  "glossary": [
+    {
+      "id": "G_selective",
+      "term": "选择性复制",
+      "aliases": [
+        "selective replication"
+      ],
+      "expansion": "Selective replication · 选择性复制",
+      "type": "paper",
+      "text": "仅复制可配置策略指定的操作。",
+      "context": "此处为合成文本对该术语的明确定义。",
+      "evidence": [
+        {
+          "ref": "S001",
+          "quote": "We define selective replication as duplicating only operations designated by a configurable policy."
+        }
+      ]
+    },
+    {
+      "id": "G_budget",
+      "term": "固定预算",
+      "aliases": [
+        "固定资源预算",
+        "同一预算",
+        "同预算"
+      ],
+      "type": "analysis",
+      "text": "比较双方可用的复制资源总量相同。",
+      "context": "合成例子把资源分配方式作为比较变量。",
+      "boundary": "同预算不自动保证实现开销或吞吐量也相同。",
+      "reason": "S001 限定主张范围，S002 描述相同复制预算下的对照。",
+      "refs": [
+        "S001",
+        "S002"
+      ]
+    },
+    {
+      "id": "G_baseline",
+      "term": "基线",
+      "aliases": [],
+      "type": "analysis",
+      "text": "用来判断新方法是否改善结果的参照方案。",
+      "context": "这里指均匀复制策略。",
+      "reason": "S002 明确将选择性策略与均匀复制策略比较。",
+      "refs": [
+        "S002"
+      ]
+    }
+  ]
 }
