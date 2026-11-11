@@ -1,0 +1,26 @@
+name: Validate reader
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.10", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run source and rendering checks
+        run: python -m unittest discover -s tests -v
+      - name: Build standalone demonstration
+        run: python scripts/build_reader.py assets/demo-content.json --output .tmp/demo.html
