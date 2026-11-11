@@ -35,8 +35,22 @@ main{max-width:1408px;margin:auto;padding:26px 24px 55px}
 .paragraph-row.no-notes{grid-template-columns:minmax(0,1fr)}
 .source-locator{font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;line-height:1.5}
 .source-locator a{text-decoration:none;font-weight:600}.original{font-family:"Lora",Georgia,"Times New Roman",serif;font-size:17px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere}
-.citation-link{color:inherit;text-decoration:underline;text-decoration-color:#7388a0;text-decoration-style:dotted;scroll-margin-top:15px}
-.citation-link:hover{color:#315c8c;text-decoration-style:solid}.citation-link:target{outline:2px solid #b2905b;outline-offset:3px;border-radius:2px}
+.citation-link,.figure-link{color:inherit;text-decoration:underline;text-decoration-color:#7388a0;text-decoration-style:dotted;scroll-margin-top:15px}
+.citation-link:hover,.figure-link:hover{color:#315c8c;text-decoration-style:solid}.citation-link:target,.figure-link:target{outline:2px solid #b2905b;outline-offset:3px;border-radius:2px}
+.reader-preview{position:fixed;z-index:8;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:#fffdf7;border:1px solid #c9c0ae;border-top:3px solid #456383;border-radius:8px;box-shadow:0 12px 35px #14273e26;overflow:hidden;font-size:13px;line-height:1.75}
+.reader-preview[hidden]{display:none}.reader-preview.preview-inline{position:relative;grid-column:1/-1;max-width:100%;margin:6px 0}
+.preview-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--rule);background:#edf1f6}
+.preview-header h2{font-size:15px;margin:0;color:var(--navy)}.preview-close{font-size:20px;border:0;background:transparent;color:var(--navy);padding:0 5px;line-height:1.4}
+.preview-content{overflow:auto;min-height:0;padding:14px 16px;overscroll-behavior:contain}
+.preview-content p{margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere}.preview-en{font-family:"Lora",Georgia,serif}
+.preview-zh{background:#f0ece2;border-left:2px solid #b1a58d;padding:9px 12px}.preview-source,.preview-panel-note{font-size:11px;color:var(--muted)}
+.preview-image-wrap{overflow:auto;max-height:440px;overscroll-behavior:contain;background:white;border:1px solid var(--rule);margin-bottom:12px}
+.preview-image-wrap img{display:block;max-width:none;width:100%;height:auto}
+.preview-entry+.preview-entry{border-top:1px solid var(--rule);margin-top:14px;padding-top:10px}
+.preview-footer{border-top:1px solid var(--rule);padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:#faf8f2}
+.preview-zoom{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.preview-zoom[hidden]{display:none}
+.preview-zoom button{border:1px solid #c8c0ae;background:#fffdf7;border-radius:4px;padding:3px 8px;font-size:12px;color:var(--navy)}
+.preview-zoom output{font-size:11px;color:var(--muted);min-width:34px}.preview-jump{font-size:12px;margin-left:auto}
 .paragraph-row[data-kind="reference"]:target>.bilingual{box-shadow:inset 3px 0 #b2905b;padding-left:12px}
 .citation-return{margin:0 0 12px}.citation-return button{border:1px solid #c8c0ae;background:#f0ece2;color:var(--navy);border-radius:4px;padding:5px 10px;font-size:12px}
 .original mark{color:inherit;padding:1px 2px;border-radius:3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
@@ -103,8 +117,8 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
 <div class="column-labels"><span>原文与中文译文 · Source &amp; Translation</span><span>逐段批注 · Paper / Analysis</span></div>
 <section class="reading-section" id="problem"><h2 class="section-heading">1 Problem &amp; Thesis / 问题与论点</h2><article class="paragraph-row" id="S001" data-kind="paragraph">
 <div class="bilingual"><div class="source-locator"><a href="#S001">S001</a><span>合成材料 · 第 1 段</span></div>
-<div class="original" lang="en">Redundant execution can detect transient faults, but duplicating every operation consumes limited resources. We define <mark class="term" title="关键概念">selective replication</mark> as duplicating only operations designated by a configurable policy. We argue that <mark class="thesis" title="核心论点">selective replication can improve fault detection within a fixed resource budget</mark>. A synthetic background reference is provided in [<a class="citation-link" id="citation-S001-en-1" href="#R001" aria-label="查看参考文献 1" title="查看参考文献 1">1</a>].</div>
-<div class="translation" lang="zh-CN"><span class="lang-label">中文译文</span>冗余执行能够检测瞬态故障，但复制所有操作会消耗有限的资源。本文将选择性复制定义为：仅对可配置策略指定的操作进行复制。我们的核心主张是，在资源预算固定的条件下，选择性复制能够改善故障检测效果。合成的背景文献见 [<a class="citation-link" id="citation-S001-zh-1" href="#R001" aria-label="查看参考文献 1" title="查看参考文献 1">1</a>]。</div></div>
+<div class="original" lang="en">Redundant execution can detect transient faults, but duplicating every operation consumes limited resources. We define <mark class="term" title="关键概念">selective replication</mark> as duplicating only operations designated by a configurable policy. We argue that <mark class="thesis" title="核心论点">selective replication can improve fault detection within a fixed resource budget</mark>. A synthetic background reference is provided in [<a class="citation-link preview-link" id="citation-S001-en-1" href="#R001" data-preview-targets="R001" data-preview-label="1" data-preview-panel="" aria-controls="reader-preview" aria-expanded="false" aria-label="查看参考文献 1" title="查看参考文献 1">1</a>].</div>
+<div class="translation" lang="zh-CN"><span class="lang-label">中文译文</span>冗余执行能够检测瞬态故障，但复制所有操作会消耗有限的资源。本文将选择性复制定义为：仅对可配置策略指定的操作进行复制。我们的核心主张是，在资源预算固定的条件下，选择性复制能够改善故障检测效果。合成的背景文献见 [<a class="citation-link preview-link" id="citation-S001-zh-1" href="#R001" data-preview-targets="R001" data-preview-label="1" data-preview-panel="" aria-controls="reader-preview" aria-expanded="false" aria-label="查看参考文献 1" title="查看参考文献 1">1</a>]。</div></div>
 <aside class="notes" aria-label="S001 的逐段批注"><div class="note-card paper-card" data-provenance="paper">
 <h3 class="note-title">作者明确说的 <span class="tag">[Paper]</span></h3>
 <p class="note-explainer">原文中的明确陈述或忠实转述；不代表已被独立核实。</p>
@@ -337,6 +351,15 @@ FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 </pre></details></footer>
 </main>
+<aside class="reader-preview" id="reader-preview" role="region" aria-labelledby="reader-preview-title" hidden>
+<div class="preview-header"><h2 id="reader-preview-title">图表与参考文献预览</h2><button type="button" class="preview-close" aria-label="关闭预览">×</button></div>
+<div class="preview-content" id="reader-preview-content"></div>
+<div class="preview-footer"><div class="preview-zoom" hidden>
+<button type="button" data-zoom="out" aria-label="缩小预览图片">−</button><output aria-live="polite">100%</output>
+<button type="button" data-zoom="in" aria-label="放大预览图片">＋</button>
+<button type="button" data-zoom="fit">适宽</button><button type="button" data-zoom="original">原尺寸</button>
+</div><a class="preview-jump" href="#top">跳转到原文位置 ↗</a></div>
+</aside>
 <script>
 (() => {
   const body = document.body;
@@ -369,16 +392,202 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       target.scrollIntoView({block:'start'});
     });
   };
+  const preview = document.getElementById('reader-preview');
+  const previewContent = document.getElementById('reader-preview-content');
+  const previewTitle = document.getElementById('reader-preview-title');
+  const previewJump = preview.querySelector('.preview-jump');
+  const zoomControls = preview.querySelector('.preview-zoom');
+  let previewAnchor = null, openTimer, closeTimer, positionFrame, zoom = 1, minimumImageWidth = 360, dismissedAnchor = null;
+  const cancelClose = () => clearTimeout(closeTimer);
+  const hidePreview = () => {
+    clearTimeout(openTimer); cancelClose();
+    if (previewAnchor) previewAnchor.setAttribute('aria-expanded','false');
+    preview.hidden = true;
+    previewAnchor = null;
+  };
+  const positionPreview = () => {
+    if (preview.hidden || !previewAnchor) return;
+    const row = previewAnchor.closest('.paragraph-row');
+    const bilingual = row?.querySelector('.bilingual');
+    if (!bilingual) return;
+    // Remove an inline card before measuring a desktop grid: its spanning row
+    // would otherwise push the annotations down and make the layout look narrow.
+    if (preview.parentElement !== body && innerWidth > 760) {
+      body.append(preview);
+      preview.classList.remove('preview-inline');
+    }
+    const left = bilingual.getBoundingClientRect();
+    const side = row.querySelector('.notes')?.getBoundingClientRect();
+    const rowRect = row.getBoundingClientRect();
+    const navBottom = Math.max(0,nav.getBoundingClientRect().bottom);
+    const margin = 14;
+    const usableHeight = Math.max(100,innerHeight - navBottom - margin * 2);
+    // A floating preview must stay outside the entire English/Chinese column.
+    // On narrow screens use normal document flow, never an overlay on the text.
+    const rightLeft = side && side.left >= left.right ? side.left : left.right + margin;
+    const rightWidth = Math.min(side?.width || 520,innerWidth - margin - rightLeft);
+    if (!side || side.left < left.right || rightWidth < 320 || usableHeight < 220) {
+      if (preview.previousElementSibling !== bilingual) bilingual.after(preview);
+      preview.classList.add('preview-inline');
+      Object.assign(preview.style,{left:'',top:'',width:'100%',maxHeight:'min(760px,85vh)'});
+      preview.dataset.placement = 'inline';
+      return;
+    }
+    if (preview.parentElement !== body) body.append(preview);
+    preview.classList.remove('preview-inline');
+    preview.style.maxHeight = `${Math.min(720,usableHeight)}px`;
+    const blankTop = Math.max(left.bottom + margin,navBottom + margin);
+    const blankBottom = Math.min(rowRect.bottom - 26,innerHeight - margin);
+    const blankHeight = blankBottom - blankTop;
+    const blankWidth = Math.min(720,left.width);
+    // Measure at the candidate width. Larger images can scroll inside the card;
+    // do not squeeze a figure into a shallow strip merely to use the blank area.
+    preview.style.width = `${blankWidth}px`;
+    const desired = preview.getBoundingClientRect().height;
+    const minimum = Math.min(desired,previewContent.querySelector('img') ? 360 : 220);
+    if (blankWidth >= 360 && blankHeight >= minimum) {
+      Object.assign(preview.style,{
+        left:`${left.left}px`,top:`${blankTop}px`,maxHeight:`${Math.min(720,blankHeight)}px`
+      });
+      preview.dataset.placement = 'left-blank';
+    } else {
+      preview.style.width = `${Math.min(640,rightWidth)}px`;
+      const height = preview.getBoundingClientRect().height;
+      const linkTop = previewAnchor.getBoundingClientRect().top;
+      Object.assign(preview.style,{
+        left:`${rightLeft}px`,
+        top:`${Math.max(navBottom+margin,Math.min(linkTop,innerHeight-height-margin))}px`
+      });
+      preview.dataset.placement = 'right';
+    }
+  };
+  const queuePosition = () => {
+    cancelAnimationFrame(positionFrame);
+    positionFrame = requestAnimationFrame(positionPreview);
+  };
+  const paragraph = (value, className) => {
+    const p = document.createElement('p'); p.className = className; p.textContent = value; return p;
+  };
+  const showPreview = anchor => {
+    clearTimeout(openTimer); cancelClose();
+    if (dismissedAnchor === anchor) return;
+    const targets = (anchor.dataset.previewTargets || '').split(/\s+/).filter(Boolean);
+    if (!targets.length) return;
+    if (previewAnchor && previewAnchor !== anchor) previewAnchor.setAttribute('aria-expanded','false');
+    previewAnchor = anchor;
+    previewContent.replaceChildren(); zoom = 1; minimumImageWidth = 360;
+    let hasImage = false;
+    targets.forEach(id => {
+      const target = document.getElementById(id);
+      if (!target) return;
+      const entry = document.createElement('div'); entry.className = 'preview-entry';
+      const image = target.querySelector('.bilingual figure img');
+      if (image) {
+        const wrap = document.createElement('div'); wrap.className = 'preview-image-wrap';
+        const clone = image.cloneNode(); clone.style.width = 'max(100%,360px)';
+        clone.addEventListener('load',queuePosition,{once:true}); wrap.append(clone); entry.append(wrap);
+        hasImage = true;
+      }
+      if (anchor.dataset.previewPanel) entry.append(paragraph(
+        `当前显示整图；正文引用的是子图 ${anchor.dataset.previewPanel}。`,'preview-panel-note'));
+      const en = target.querySelector('.original')?.textContent || '';
+      const zh = target.querySelector('.translation')?.cloneNode(true);
+      zh?.querySelector('.lang-label')?.remove();
+      if (en) entry.append(paragraph(en,'preview-en'));
+      if (zh) entry.append(paragraph(zh.textContent,'preview-zh'));
+      const locator = target.querySelector('.source-locator span')?.textContent;
+      if (locator) entry.append(paragraph(locator,'preview-source'));
+      if (target.dataset.kind === 'reference' && targets.length > 1) {
+        const jump = document.createElement('a'); jump.href = `#${id}`;
+        jump.textContent = `查看此条文献 ↗`; entry.append(jump);
+      }
+      previewContent.append(entry);
+    });
+    if (!previewContent.childElementCount) { hidePreview(); return; }
+    const target = document.getElementById(targets[0]);
+    const isReference = target?.dataset.kind === 'reference';
+    const label = anchor.dataset.previewLabel || anchor.textContent.trim();
+    previewTitle.textContent = `${isReference ? '参考文献' : '图表'}预览 · ${label}`;
+    previewJump.href = anchor.hash;
+    zoomControls.hidden = !hasImage;
+    zoomControls.querySelector('output').textContent = '100%';
+    anchor.setAttribute('aria-expanded','true');
+    preview.hidden = false; preview.style.visibility = 'hidden';
+    positionPreview(); preview.style.visibility = '';
+  };
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer = setTimeout(() => {
+      if (!preview.matches(':hover') && !preview.contains(document.activeElement)
+          && document.activeElement !== previewAnchor) hidePreview();
+    },550);
+  };
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    const target = document.getElementById(anchor.hash.slice(1));
+    if (!anchor.dataset.previewTargets && ['figure','table','reference'].includes(target?.dataset.kind)) {
+      anchor.dataset.previewTargets = target.id;
+      anchor.setAttribute('aria-controls','reader-preview');
+      anchor.setAttribute('aria-expanded','false');
+    }
+    if (!anchor.dataset.previewTargets) return;
+    anchor.removeAttribute('title');
+    anchor.addEventListener('pointerenter',() => {
+      dismissedAnchor = null; clearTimeout(openTimer); cancelClose();
+      openTimer = setTimeout(() => showPreview(anchor),160);
+    });
+    anchor.addEventListener('pointerleave',() => { clearTimeout(openTimer); scheduleClose(); });
+    anchor.addEventListener('focus',() => { if (dismissedAnchor !== anchor) showPreview(anchor); });
+    anchor.addEventListener('blur',() => {
+      if (dismissedAnchor === anchor) dismissedAnchor = null;
+      scheduleClose();
+    });
+  });
+  preview.addEventListener('pointerenter',cancelClose);
+  preview.addEventListener('pointerleave',scheduleClose);
+  preview.addEventListener('focusin',cancelClose);
+  preview.addEventListener('focusout',scheduleClose);
+  const dismissPreview = () => {
+    const anchor = previewAnchor; dismissedAnchor = anchor; hidePreview();
+    anchor?.focus({preventScroll:true});
+  };
+  preview.querySelector('.preview-close').addEventListener('click',dismissPreview);
+  document.addEventListener('keydown',e => {
+    if (e.key === 'Escape' && !preview.hidden) { e.preventDefault(); dismissPreview(); }
+  });
+  zoomControls.querySelectorAll('[data-zoom]').forEach(button => button.addEventListener('click',() => {
+    const image = previewContent.querySelector('img');
+    if (!image) return;
+    const mode = button.dataset.zoom;
+    if (mode === 'fit') {
+      minimumImageWidth = 0; zoom = 1; image.style.width = '100%';
+    } else {
+      const base = Math.max(image.parentElement.clientWidth,minimumImageWidth);
+      if (mode === 'original') {
+        zoom = image.naturalWidth / base; image.style.width = `${image.naturalWidth}px`;
+      } else {
+        zoom = Math.min(16,Math.max(.5,image.getBoundingClientRect().width / base * (mode === 'in' ? 1.5 : 1/1.5)));
+        image.style.width = `max(${zoom * 100}%,${minimumImageWidth * zoom}px)`;
+      }
+    }
+    zoomControls.querySelector('output').textContent = `${Math.round(zoom*100)}%`;
+    queuePosition();
+  }));
+  window.addEventListener('scroll',queuePosition,{passive:true});
+  window.addEventListener('resize',queuePosition);
   let lastCitation = null;
-  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', () => {
-    if (a.classList.contains('citation-link')) {
-      lastCitation = a;
+  document.addEventListener('click',e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const source = preview.contains(a) ? previewAnchor : a;
+    if (source?.classList.contains('citation-link')) {
+      lastCitation = source;
       document.querySelectorAll('.citation-return').forEach(control => control.hidden = true);
       const control = document.getElementById(a.hash.slice(1))?.querySelector('.citation-return');
       if (control) control.hidden = false;
     }
+    hidePreview();
     reveal(a.hash, true);
-  }));
+  });
   document.querySelectorAll('.citation-return button').forEach(button => button.addEventListener('click', () => {
     if (!lastCitation) return;
     location.hash = lastCitation.id;
@@ -388,6 +597,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   if (location.hash) reveal(location.hash);
   let closedBeforePrint = [];
   window.addEventListener('beforeprint', () => {
+    hidePreview();
     closedBeforePrint = Array.from(document.querySelectorAll('details:not([open])'));
     closedBeforePrint.forEach(d => d.open = true);
   });
