@@ -34,6 +34,10 @@ main{max-width:1408px;margin:auto;padding:26px 24px 55px}
 .paragraph-row{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:36px;padding:26px 0;border-bottom:1px solid var(--rule);align-items:start;scroll-margin-top:calc(var(--nav-height) + 15px)}
 .source-locator{font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;line-height:1.5}
 .source-locator a{text-decoration:none;font-weight:600}.original{font-family:"Lora",Georgia,"Times New Roman",serif;font-size:17px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere}
+.citation-link{color:inherit;text-decoration:underline;text-decoration-color:#7388a0;text-decoration-style:dotted;scroll-margin-top:15px}
+.citation-link:hover{color:#315c8c;text-decoration-style:solid}.citation-link:target{outline:2px solid #b2905b;outline-offset:3px;border-radius:2px}
+.paragraph-row[data-kind="reference"]:target>.bilingual{box-shadow:inset 3px 0 #b2905b;padding-left:12px}
+.citation-return{margin:0 0 12px}.citation-return button{border:1px solid #c8c0ae;background:#f0ece2;color:var(--navy);border-radius:4px;padding:5px 10px;font-size:12px}
 .original mark{color:inherit;padding:1px 2px;border-radius:3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 mark.thesis{background:var(--thesis)}mark.term{background:var(--term)}mark.evidence{background:var(--evidence)}mark.concession{background:var(--concession)}mark.method{background:var(--method)}
 body.no-highlights mark{background:transparent}
@@ -69,7 +73,7 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
 @media(max-width:1000px){.paragraph-row,.column-labels{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:23px}.nav-inner{flex-wrap:wrap;gap:5px}.nav-links{flex-basis:100%}.controls{padding:0 3px}.chain{grid-template-columns:1fr}.chain-card:not(:last-child)::after{content:"↓";right:15px;top:auto;bottom:-16px}.chain-card{padding:13px 16px}}
 @media(max-width:760px){.masthead{padding:27px 19px}.course{font-size:13px}main{padding:20px 18px 38px}.nav-inner{padding:7px 14px}.column-labels{display:none}.paragraph-row{grid-template-columns:1fr;gap:17px;padding:23px 0}.original{font-size:16px}.translation{font-size:14px}.notes{gap:10px}.assessments{grid-template-columns:1fr}.source-note{padding:12px 14px}.section-heading{font-size:19px}.legend{gap:7px 13px;font-size:11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-@media print{html{scroll-padding-top:0}body{font-size:10pt;background:white}.masthead{color:#14273e;background:white;padding:0 0 16px}.eyebrow,.course,.legend{color:#47566a}.section-nav,.column-labels{display:none}main{max-width:none;padding:12px 0}.paragraph-row{gap:20px;padding:16px 0;break-inside:auto}.original{font-size:10.5pt;line-height:1.7}.translation{font-size:9.5pt}.note-card{font-size:8.5pt;break-inside:avoid}.overview{break-before:page}.chain{grid-template-columns:1fr}.chain-card::after{display:none}a{color:inherit}mark,.note-card,.translation,.chain-card{print-color-adjust:exact;-webkit-print-color-adjust:exact}.reading-section details:not([open])>*:not(summary){display:block}body.only-paper .analysis-card,body.only-paper .external-card,body.only-analysis .paper-card,body.only-analysis .external-card{display:block}body.only-paper .overview [data-provenance],body.only-analysis .overview [data-provenance]{display:block}}
+@media print{html{scroll-padding-top:0}body{font-size:10pt;background:white}.masthead{color:#14273e;background:white;padding:0 0 16px}.eyebrow,.course,.legend{color:#47566a}.section-nav,.column-labels,.citation-return{display:none}main{max-width:none;padding:12px 0}.paragraph-row{gap:20px;padding:16px 0;break-inside:auto}.original{font-size:10.5pt;line-height:1.7}.translation{font-size:9.5pt}.note-card{font-size:8.5pt;break-inside:avoid}.overview{break-before:page}.chain{grid-template-columns:1fr}.chain-card::after{display:none}a{color:inherit}mark,.note-card,.translation,.chain-card{print-color-adjust:exact;-webkit-print-color-adjust:exact}.reading-section details:not([open])>*:not(summary){display:block}body.only-paper .analysis-card,body.only-paper .external-card,body.only-analysis .paper-card,body.only-analysis .external-card{display:block}body.only-paper .overview [data-provenance],body.only-analysis .overview [data-provenance]{display:block}}
 </style>
 </head>
 <body>
@@ -86,7 +90,7 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
 </div>
 </header>
 <nav class="section-nav" aria-label="章节导航"><div class="nav-inner">
-<div class="nav-links"><a href="#problem">1 Problem &amp; Thesis / 问题与论点</a><a href="#evidence">2 Method &amp; Evidence / 方法与证据</a><a href="#boundary">3 Boundary &amp; Conclusion / 边界与结论</a><a href="#argument-overview">论证总览</a></div>
+<div class="nav-links"><a href="#problem">1 Problem &amp; Thesis / 问题与论点</a><a href="#evidence">2 Method &amp; Evidence / 方法与证据</a><a href="#boundary">3 Boundary &amp; Conclusion / 边界与结论</a><a href="#references">References / 合成参考文献</a><a href="#argument-overview">论证总览</a></div>
 <div class="controls" aria-label="阅读显示控制">
 <button type="button" id="highlights-toggle" aria-pressed="true">五色高亮</button>
 <button type="button" data-filter="all" aria-pressed="true">全部批注</button>
@@ -94,12 +98,12 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
 <button type="button" data-filter="analysis" aria-pressed="false">模型分析</button>
 </div></div></nav>
 <main>
-<aside class="source-note" aria-label="来源范围与缺失"><p class="status">节选阅读 · 不代表全文</p><p>本页为技能功能测试而原创的合成文本；非已发表论文，数据不代表真实实验。</p><p><strong>来源：</strong>本技能附带的三段合成英文测试材料 · source-limited</p><p><strong>覆盖范围：</strong>完整展示三段合成材料，用于演示排版与来源区分；不对应任何真实论文。</p><p>已处理 3 / 清单 3 个来源块。作者陈述与模型分析分区显示。</p><p><strong>来源说明</strong></p><ul><li>以下英文、中文及示例数据均为合成测试内容，不得用于学术引用。</li></ul><p><strong>字体</strong></p><ul><li>Lora 已内嵌</li><li>IBM Plex Sans 已内嵌</li></ul></aside>
+<aside class="source-note" aria-label="来源范围与缺失"><p class="status">节选阅读 · 不代表全文</p><p>本页为技能功能测试而原创的合成文本；非已发表论文，数据不代表真实实验。</p><p><strong>来源：</strong>本技能附带的三段合成英文及一条合成参考文献 · source-limited</p><p><strong>覆盖范围：</strong>完整展示三段合成材料及一条参考文献，用于演示排版、引文跳转与来源区分；不对应任何真实论文。</p><p>已处理 4 / 清单 4 个来源块。作者陈述与模型分析分区显示。</p><p><strong>来源说明</strong></p><ul><li>以下英文、中文及示例数据均为合成测试内容，不得用于学术引用。</li></ul><p><strong>字体</strong></p><ul><li>Lora 已内嵌</li><li>IBM Plex Sans 已内嵌</li></ul></aside>
 <div class="column-labels"><span>原文与中文译文 · Source &amp; Translation</span><span>逐段批注 · Paper / Analysis</span></div>
 <section class="reading-section" id="problem"><h2 class="section-heading">1 Problem &amp; Thesis / 问题与论点</h2><article class="paragraph-row" id="S001" data-kind="paragraph">
 <div class="bilingual"><div class="source-locator"><a href="#S001">S001</a><span>合成材料 · 第 1 段</span></div>
-<div class="original" lang="en">Redundant execution can detect transient faults, but duplicating every operation consumes limited resources. We define <mark class="term" title="关键概念">selective replication</mark> as duplicating only operations designated by a configurable policy. We argue that <mark class="thesis" title="核心论点">selective replication can improve fault detection within a fixed resource budget</mark>.</div>
-<div class="translation" lang="zh-CN"><span class="lang-label">中文译文</span>冗余执行能够检测瞬态故障，但复制所有操作会消耗有限的资源。本文将选择性复制定义为：仅对可配置策略指定的操作进行复制。我们的核心主张是，在资源预算固定的条件下，选择性复制能够改善故障检测效果。</div></div>
+<div class="original" lang="en">Redundant execution can detect transient faults, but duplicating every operation consumes limited resources. We define <mark class="term" title="关键概念">selective replication</mark> as duplicating only operations designated by a configurable policy. We argue that <mark class="thesis" title="核心论点">selective replication can improve fault detection within a fixed resource budget</mark>. A synthetic background reference is provided in [<a class="citation-link" id="citation-S001-en-1" href="#R001" aria-label="查看参考文献 1" title="查看参考文献 1">1</a>].</div>
+<div class="translation" lang="zh-CN"><span class="lang-label">中文译文</span>冗余执行能够检测瞬态故障，但复制所有操作会消耗有限的资源。本文将选择性复制定义为：仅对可配置策略指定的操作进行复制。我们的核心主张是，在资源预算固定的条件下，选择性复制能够改善故障检测效果。合成的背景文献见 [<a class="citation-link" id="citation-S001-zh-1" href="#R001" aria-label="查看参考文献 1" title="查看参考文献 1">1</a>]。</div></div>
 <aside class="notes" aria-label="S001 的逐段批注">
 <div class="note-card paper-card" data-provenance="paper"><h3 class="note-title">作者明确说的 <span class="tag">[Paper]</span></h3>
 <p class="note-explainer">原文中的明确陈述或忠实转述；不代表已被独立核实。</p><ol><li><p>作者将选择性复制界定为仅复制可配置策略指定的操作。</p><blockquote class="source-quote" lang="en">We define selective replication as duplicating only operations designated by a configurable policy.</blockquote><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></li><li><p>作者提出，选择性复制可在固定资源预算内改善故障检测效果。</p><blockquote class="source-quote" lang="en">We argue that selective replication can improve fault detection within a fixed resource budget.</blockquote><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></li></ol></div>
@@ -126,6 +130,16 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
 <div class="note-card analysis-card" data-provenance="analysis"><h3 class="note-title">模型推断的 <span class="tag">[Analysis]</span></h3>
 <p class="note-explainer">下列功能、逻辑角色及评价为模型解读，并非作者原话。</p><div class="analysis-item"><strong>段落功能</strong><p>承认实验边界，并收束结论。</p><p class="reason">推理 / 边界：让步句保留检测改善的观察，同时明确指出负载类型和故障类型的范围。</p><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div><div class="analysis-item"><strong>逻辑角色</strong><p>防止第二段的有限证据被过度外推。</p><p class="reason">推理 / 边界：结论的适用对象被限制在实际接受评估的条件内，与第二段证据范围相匹配。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div><div class="analysis-item"><strong>论证技巧</strong><p>通过主动限定结论处理泛化层面的潜在异议。</p><p class="reason">推理 / 边界：这是对段落作用的模型解释；原文明示的是测试范围有限，并未逐条列出反方论证。</p><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div><div class="analysis-item"><strong>潜在漏洞 / 边界</strong><p class="reason">暂无足够依据作出额外判断。</p></div></div>
 </aside></article></section>
+<section class="reading-section" id="references"><details><summary class="section-heading">References / 合成参考文献</summary><article class="paragraph-row" id="R001" data-kind="reference">
+<div class="bilingual"><div class="source-locator"><a href="#R001">R001</a><span>合成材料 · 参考文献 [1]</span></div>
+<div class="citation-return" hidden><button type="button">↩ 返回刚才的引文</button></div><div class="original" lang="en">[1] Reader Demo Authors. A Synthetic Background Note on Redundant Execution. Fictional reference for navigation testing only.</div>
+<div class="translation" lang="zh-CN"><span class="lang-label">中文译文</span>[1] 阅读器演示作者：《冗余执行的合成背景说明》。本条为导航测试而编造，不可用于学术引用。</div></div>
+<aside class="notes" aria-label="R001 的逐段批注">
+<div class="note-card paper-card" data-provenance="paper"><h3 class="note-title">作者明确说的 <span class="tag">[Paper]</span></h3>
+<p class="note-explainer">原文中的明确陈述或忠实转述；不代表已被独立核实。</p><p class="reason">原文未明确说明。此处不补写作者未表达的立场。</p></div>
+<div class="note-card analysis-card" data-provenance="analysis"><h3 class="note-title">模型推断的 <span class="tag">[Analysis]</span></h3>
+<p class="note-explainer">下列功能、逻辑角色及评价为模型解读，并非作者原话。</p><div class="analysis-item"><strong>段落功能</strong><p>展示参考文献条目与引文导航。</p><p class="reason">推理 / 边界：正文引文 [1] 指向这一合成条目，可从此返回点击位置。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#R001" aria-label="查看依据 R001">↗ R001</a></div></div><div class="analysis-item"><strong>逻辑角色</strong><p>仅用于测试导航，不提供真实论据。</p><p class="reason">推理 / 边界：条目明确标注为合成材料，因此不能充当外部学术证据。</p><div class="refs"><a href="#R001" aria-label="查看依据 R001">↗ R001</a></div></div><div class="analysis-item"><strong>论证技巧</strong><p class="reason">暂无足够依据作出额外判断。</p></div><div class="analysis-item"><strong>潜在漏洞 / 边界</strong><p class="reason">暂无足够依据作出额外判断。</p></div></div>
+</aside></article></details></section>
 <section class="overview" id="argument-overview"><h2>全文论证结构总览</h2>
 <p class="reason">以下骨架按所声明材料范围整理。概括与评价属于模型分析，明示转述另行标注。</p>
 <div class="chain"><div class="chain-card" data-provenance="analysis"><div class="chain-stage">01 · 问题</div><span class="tag">[Analysis]</span><p>有限资源下，如何改善冗余执行的故障检测？</p><p class="reason">推理 / 边界：从资源代价陈述与固定预算条件中归纳研究问题。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></div><div class="chain-card" data-provenance="paper"><div class="chain-stage">02 · 论点</div><span class="tag">[Paper]</span><p>选择性复制可在固定资源预算内改善故障检测。</p><blockquote class="source-quote" lang="en">We argue that selective replication can improve fault detection within a fixed resource budget.</blockquote><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></div><div class="chain-card" data-provenance="analysis"><div class="chain-stage">03 · 证据</div><span class="tag">[Analysis]</span><p>相同预算下，合成实验的检测计数支持该策略。</p><p class="reason">推理 / 边界：264 与 231 的比较提供局部支持；不能据此主张一般有效。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></div><div class="chain-card" data-provenance="analysis"><div class="chain-stage">04 · 反驳</div><span class="tag">[Analysis]</span><p>原文通过范围限定处理泛化问题，未见独立的正式反驳。</p><p class="reason">推理 / 边界：第三段承认限制；把这一段理解为异议处理属于模型分析。</p><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div><div class="chain-card" data-provenance="analysis"><div class="chain-stage">05 · 结论</div><span class="tag">[Analysis]</span><p>当前主张仅限于所测负载中的瞬态故障。</p><p class="reason">推理 / 边界：按作者明确的结论边界概括，实际部署仍待验证。</p><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div></div>
@@ -337,15 +351,37 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     if (button.dataset.filter !== 'all') body.classList.add(`only-${button.dataset.filter}`);
     document.querySelectorAll('[data-filter]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
   }));
-  const reveal = hash => {
+  const reveal = (hash, focus = false) => {
     if (!hash || hash === '#') return;
-    const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+    let id;
+    try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
     if (!target) return;
     let node = target.parentElement;
     while (node) { if (node.tagName === 'DETAILS') node.open = true; node = node.parentElement; }
-    requestAnimationFrame(() => target.scrollIntoView({block:'start'}));
+    requestAnimationFrame(() => {
+      if (focus) {
+        if (!target.hasAttribute('tabindex') && !target.matches('a,button')) target.tabIndex = -1;
+        target.focus({preventScroll:true});
+      }
+      target.scrollIntoView({block:'start'});
+    });
   };
-  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', () => reveal(a.hash)));
+  let lastCitation = null;
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+    if (a.classList.contains('citation-link')) {
+      lastCitation = a;
+      document.querySelectorAll('.citation-return').forEach(control => control.hidden = true);
+      const control = document.getElementById(a.hash.slice(1))?.querySelector('.citation-return');
+      if (control) control.hidden = false;
+    }
+    reveal(a.hash, true);
+  }));
+  document.querySelectorAll('.citation-return button').forEach(button => button.addEventListener('click', () => {
+    if (!lastCitation) return;
+    location.hash = lastCitation.id;
+    reveal(location.hash, true);
+  }));
   window.addEventListener('hashchange', () => reveal(location.hash));
   if (location.hash) reveal(location.hash);
   let closedBeforePrint = [];
