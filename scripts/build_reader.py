@@ -15,6 +15,11 @@ CATEGORIES = {
     "concession": "让步/反驳", "method": "方法论",
 }
 SLOTS = {"function": "段落功能", "logic": "逻辑角色", "technique": "论证技巧", "caveat": "潜在漏洞 / 边界"}
+LENSES = {
+    "mechanism": "机制拆解", "evidence": "主张与证据", "assumption": "成立条件",
+    "comparison": "比较是否公平", "quantitative": "定量核读", "alternative": "替代解释",
+    "boundary": "适用边界", "reproducibility": "复现要点", "connection": "跨段推演",
+}
 MEDIA_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
                ".gif": "image/gif", ".webp": "image/webp", ".avif": "image/avif"}
 RESERVED = {"top", "argument-overview", "highlights-toggle", "reader-preview",
@@ -226,6 +231,16 @@ def validate(data):
             item = analysis[key]
             if key in {"function", "logic"} or item is not None:
                 validate_analysis(item, blocks, f"{bid}.{key}")
+        insights = analysis.get("insights", [])
+        require(isinstance(insights, list), f"{bid}: insights 必须为数组")
+        for index, item in enumerate(insights):
+            name = f"{bid}.insights[{index}]"
+            validate_analysis(item, blocks, name)
+            require(item.get("lens") in LENSES, f"{name}: 未知分析视角")
+            text(item.get("title"), f"{name}.title")
+            text(item.get("implication"), f"{name}.implication")
+            if "check" in item:
+                text(item["check"], f"{name}.check")
         media = block.get("media")
         if media is not None:
             require(isinstance(media, dict), f"{bid}: media 必须为对象")
@@ -260,7 +275,12 @@ def reference_links(ids):
         for ref in dict.fromkeys(ids)) + "</div>"
 
 
-def evidence_html(items):
+def evidence_html(items, collapsible=False):
+    if collapsible:
+        quotes = "".join(f'<blockquote class="source-quote" lang="en">{esc(item["quote"])}</blockquote>'
+                         for item in items)
+        return ('<details class="quote-details"><summary>核对原文证据</summary>' + quotes + "</details>"
+                + reference_links([item["ref"] for item in items]))
     return "".join(
         f'<blockquote class="source-quote" lang="en">{esc(item["quote"])}</blockquote>'
         + reference_links([item["ref"]]) for item in items)
@@ -269,6 +289,18 @@ def evidence_html(items):
 def analysis_html(item):
     return (f'<p>{esc(item["text"])}</p><p class="reason">推理 / 边界：{esc(item["reason"])}</p>'
             + reference_links(item["refs"]))
+
+
+def insight_html(item):
+    check = (f'<p class="insight-check"><span>如何核验</span>{esc(item["check"])}</p>'
+             if item.get("check") else "")
+    return (f'<section class="insight" data-lens="{esc(item["lens"])}">'
+            f'<div class="insight-lens">{LENSES[item["lens"]]}</div>'
+            f'<h4>{esc(item["title"])}</h4><p>{esc(item["text"])}</p>'
+            '<details class="insight-details"><summary>展开依据、影响与核验</summary>'
+            f'<p class="reason"><span>依据与推导</span>{esc(item["reason"])}</p>'
+            f'<p class="insight-impact"><span>对结论的影响</span>{esc(item["implication"])}</p>'
+            + check + "</details>" + reference_links(item["refs"]) + "</section>")
 
 
 def summary_html(item, show_label=True):
@@ -366,7 +398,14 @@ def media_html(media, content_dir):
             f'<figcaption>{esc(media["alt"])}</figcaption></figure>')
 
 
-def render_block(block, content_dir, references, used_ids, figures):
+def render_block(block, content_dir, references, used_ids, figures, explained=None):
+    if explained is None:
+        explained = set()
+    def explainer(kind, value):
+        if kind in explained:
+            return ""
+        explained.add(kind)
+        return f'<p class="note-explainer">{value}</p>'
     bid = block["id"]
     original = linked_text(block, "en", references, used_ids, figures)
     translation = linked_text(block, "zh", references, used_ids, figures)
@@ -376,20 +415,33 @@ def render_block(block, content_dir, references, used_ids, figures):
     uncertainty = (f'<div class="uncertainty">提取 / 来源提示：{esc(block["uncertainty"])}</div>'
                    if block.get("uncertainty") else "")
     paper_items = "".join(
-        f'<li><p>{esc(item["text"])}</p>{evidence_html(item["evidence"])}</li>'
+        f'<li><p>{esc(item["text"])}</p>{evidence_html(item["evidence"], collapsible=True)}</li>'
         for item in block["author"])
     paper = (f'''<div class="note-card paper-card" data-provenance="paper">
 <h3 class="note-title">作者明确说的 <span class="tag">[Paper]</span></h3>
-<p class="note-explainer">原文中的明确陈述或忠实转述；不代表已被独立核实。</p>
+{explainer("paper", "原文中的明确陈述或忠实转述；不代表已被独立核实。") if paper_items else ""}
 <ol>{paper_items}</ol></div>''' if paper_items else "")
     analysis_items = ""
     for key, label in SLOTS.items():
         item = block["analysis"][key]
         if item is not None:
             analysis_items += f'<div class="analysis-item"><strong>{label}</strong>{analysis_html(item)}</div>'
+    insights = block["analysis"].get("insights", [])
+    if insights:
+        extra = ('<details class="extra-insights"><summary>更多分析'
+                 f'（{len(insights) - 1} 条）</summary>'
+                 + "".join(insight_html(item) for item in insights[1:]) + "</details>"
+                 if len(insights) > 1 else "")
+        analysis_items = (insight_html(insights[0]) + extra
+                          + '<details class="argument-details"><summary>段落作用与论证衔接</summary>'
+                          + analysis_items + "</details>")
+    elif analysis_items:
+        analysis_items = (f'<p class="role-summary">{esc(block["analysis"]["function"]["text"])}</p>'
+                          + '<details class="argument-details"><summary>段落作用与论证衔接</summary>'
+                          + analysis_items + "</details>")
     analysis = (f'''<div class="note-card analysis-card" data-provenance="analysis">
 <h3 class="note-title">模型推断的 <span class="tag">[Analysis]</span></h3>
-<p class="note-explainer">下列功能、逻辑角色及评价为模型解读，并非作者原话。</p>
+{explainer("analysis", "下列功能、逻辑角色及评价为模型解读，并非作者原话。") if analysis_items else ""}
 {analysis_items}</div>''' if analysis_items else "")
     external = ""
     if block.get("external"):
@@ -442,10 +494,10 @@ def build(data, content_dir, lora_font=None, plex_font=None):
                     seen_licenses.add(license_path)
         else:
             font_notes.append(f"{family} 未内嵌；优先使用本机字体，否则回退系统字体")
-    nav, body = [], []
+    nav, body, explained = [], [], set()
     for section in data["sections"]:
         nav.append(f'<a href="#{section["id"]}">{esc(section["title"])}</a>')
-        rows = "".join(render_block(b, content_dir, references, used_ids, figures) for b in section["blocks"])
+        rows = "".join(render_block(b, content_dir, references, used_ids, figures, explained) for b in section["blocks"])
         if section.get("collapsed"):
             inner = f'<details><summary class="section-heading">{esc(section["title"])}</summary>{rows}</details>'
         else:
