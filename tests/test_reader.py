@@ -24,6 +24,7 @@ class OutputParser(HTMLParser):
         self.translation_marks = 0
         self.script_count = 0
         self.citations = []
+        self.figures = []
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -33,6 +34,8 @@ class OutputParser(HTMLParser):
             self.anchors.append(attrs["href"][1:])
             if "citation-link" in attrs.get("class", "").split():
                 self.citations.append(attrs)
+            if "figure-link" in attrs.get("class", "").split():
+                self.figures.append(attrs)
         if "src" in attrs:
             self.resources.append(attrs["src"])
         if tag == "script":
@@ -156,6 +159,7 @@ class ReaderTests(unittest.TestCase):
         parsed.feed(output)
         self.assertEqual(parsed.originals, [b["en"] for s in self.data["sections"] for b in s["blocks"]])
         self.assertEqual([a["href"] for a in parsed.citations], ["#R1", "#R2", "#R4", "#R2"] * 2)
+        self.assertEqual(parsed.citations[-1]["data-preview-targets"], "R2 R3 R4")
         self.assertEqual(len(parsed.ids), len(set(parsed.ids)))
         self.assertTrue(set(parsed.anchors).issubset(parsed.ids))
         self.assertEqual(parsed.translation_marks, 0)
@@ -192,6 +196,46 @@ class ReaderTests(unittest.TestCase):
         self.assertEqual([a["href"] for a in parsed.citations], ["#R1", "#R2"] * 2)
         self.assertEqual(len(parsed.ids), len(set(parsed.ids)))
         self.assertTrue(set(parsed.anchors).issubset(parsed.ids))
+
+    def with_figures(self):
+        for bid, kind, en in [("F002", "figure", "Fig. 2. Synthetic figure."),
+                               ("F002b", "figure", "Fig. 2b. Separate synthetic panel."),
+                               ("T001", "table", "Table 1. Synthetic table.")]:
+            block = copy.deepcopy(self.data["sections"][0]["blocks"][0])
+            block.update(id=bid, kind=kind, en=en, zh="合成图表测试。", highlights=[])
+            self.data["sections"][-1]["blocks"].append(block)
+            self.data["source"]["expected_block_ids"].append(bid)
+
+    def test_figure_table_panel_links_preserve_source_and_resolve_exact_targets(self):
+        self.with_figures()
+        block = self.data["sections"][0]["blocks"][0]
+        block["en"] += " See Fig. 2a, Figure 2(b), Table 1 and Fig. 99."
+        block["zh"] += " 见图 2a、图2（b）、表1和图99。"
+        block["highlights"].append({"category": "evidence", "quote": "See Fig. 2a, Figure 2(b), Table"})
+        parsed = OutputParser()
+        parsed.feed(reader.build(self.data, ROOT))
+        self.assertEqual(parsed.originals, [b["en"] for s in self.data["sections"] for b in s["blocks"]])
+        self.assertEqual([a["href"] for a in parsed.figures], ["#F002", "#F002b", "#T001"] * 2)
+        self.assertEqual([a["data-preview-panel"] for a in parsed.figures], ["a", "", ""] * 2)
+        self.assertTrue(set(parsed.anchors).issubset(parsed.ids))
+        self.assertEqual(parsed.translation_marks, 0)
+        block["link_figures"] = False
+        parsed = OutputParser()
+        parsed.feed(reader.build(self.data, ROOT))
+        self.assertEqual(parsed.figures, [])
+
+    def test_figure_labels_are_unambiguous_and_cannot_create_unrelated_targets(self):
+        self.with_figures()
+        candidate = self.data["sections"][-1]["blocks"][-1]
+        candidate.update(en="Synthetic table with a nonstandard caption.", xref_label="表 1")
+        self.assertEqual(reader.figure_index(reader.validate(self.data))[("table", "1", "")], "T001")
+        for changes in ({"xref_label": "Fig. 2"}, {"xref_label": "<img onerror=alert(1)>"},
+                        {"kind": "paragraph"}, {"xref_label": "Table 1", "kind": "figure"}):
+            with self.subTest(changes=changes):
+                data = copy.deepcopy(self.data)
+                data["sections"][-1]["blocks"][-1].update(changes)
+                with self.assertRaises(ValueError):
+                    reader.validate(data)
 
 
 if __name__ == "__main__":
