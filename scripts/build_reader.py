@@ -319,13 +319,19 @@ def render_block(block, content_dir, references, used_ids):
     paper_items = "".join(
         f'<li><p>{esc(item["text"])}</p>{evidence_html(item["evidence"])}</li>'
         for item in block["author"])
-    paper = (f"<ol>{paper_items}</ol>" if paper_items
-             else '<p class="reason">原文未明确说明。此处不补写作者未表达的立场。</p>')
+    paper = (f'''<div class="note-card paper-card" data-provenance="paper">
+<h3 class="note-title">作者明确说的 <span class="tag">[Paper]</span></h3>
+<p class="note-explainer">原文中的明确陈述或忠实转述；不代表已被独立核实。</p>
+<ol>{paper_items}</ol></div>''' if paper_items else "")
     analysis_items = ""
     for key, label in SLOTS.items():
         item = block["analysis"][key]
-        value = analysis_html(item) if item else '<p class="reason">暂无足够依据作出额外判断。</p>'
-        analysis_items += f'<div class="analysis-item"><strong>{label}</strong>{value}</div>'
+        if item is not None:
+            analysis_items += f'<div class="analysis-item"><strong>{label}</strong>{analysis_html(item)}</div>'
+    analysis = (f'''<div class="note-card analysis-card" data-provenance="analysis">
+<h3 class="note-title">模型推断的 <span class="tag">[Analysis]</span></h3>
+<p class="note-explainer">下列功能、逻辑角色及评价为模型解读，并非作者原话。</p>
+{analysis_items}</div>''' if analysis_items else "")
     external = ""
     if block.get("external"):
         external = '<div class="note-card external-card"><h3 class="note-title">外部补充 <span class="tag">[External]</span></h3>'
@@ -333,16 +339,14 @@ def render_block(block, content_dir, references, used_ids):
             external += (f'<p>{esc(item["text"])}</p><a href="{esc(item["url"])}" target="_blank" '
                          f'rel="noopener noreferrer">{esc(item["citation"])}</a>')
         external += "</div>"
-    return f'''<article class="paragraph-row" id="{bid}" data-kind="{esc(block['kind'])}">
+    cards = paper + analysis + external
+    notes = f'<aside class="notes" aria-label="{bid} 的逐段批注">{cards}</aside>' if cards else ""
+    row_class = "paragraph-row" if cards else "paragraph-row no-notes"
+    return f'''<article class="{row_class}" id="{bid}" data-kind="{esc(block['kind'])}">
 <div class="bilingual"><div class="source-locator"><a href="#{bid}">{bid}</a><span>{esc(block['locator']['label'])}</span></div>
 {return_control}<div class="original" lang="en">{original}</div>{media}
 <div class="translation" lang="zh-CN"><span class="lang-label">中文译文</span>{translation}</div>{uncertainty}</div>
-<aside class="notes" aria-label="{bid} 的逐段批注">
-<div class="note-card paper-card" data-provenance="paper"><h3 class="note-title">作者明确说的 <span class="tag">[Paper]</span></h3>
-<p class="note-explainer">原文中的明确陈述或忠实转述；不代表已被独立核实。</p>{paper}</div>
-<div class="note-card analysis-card" data-provenance="analysis"><h3 class="note-title">模型推断的 <span class="tag">[Analysis]</span></h3>
-<p class="note-explainer">下列功能、逻辑角色及评价为模型解读，并非作者原话。</p>{analysis_items}</div>{external}
-</aside></article>'''
+{notes}</article>'''
 
 
 def font_css(font_path, family):
