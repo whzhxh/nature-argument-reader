@@ -6,6 +6,7 @@ import html
 import json
 import re
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -23,7 +24,8 @@ LENSES = {
 MEDIA_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
                ".gif": "image/gif", ".webp": "image/webp", ".avif": "image/avif"}
 RESERVED = {"top", "argument-overview", "highlights-toggle", "reader-preview",
-            "reader-preview-title", "reader-preview-content"}
+            "reader-preview-title", "reader-preview-content", "reader-glossary",
+            "term-popover", "term-popover-title", "term-popover-content"}
 
 
 def require(condition, message):
@@ -74,10 +76,11 @@ def validate_evidence(items, blocks, name):
         require(quote in blocks[ref]["en"], f"{name}: 短引不在 {ref} 原文中")
 
 
-def validate_analysis(item, blocks, name):
+def validate_analysis(item, blocks, name, require_reason=True):
     require(isinstance(item, dict), f"{name}: 必须为分析对象")
     text(item.get("text"), f"{name}.text")
-    text(item.get("reason"), f"{name}.reason")
+    if require_reason or "reason" in item:
+        text(item.get("reason"), f"{name}.reason")
     refs = item.get("refs")
     require(isinstance(refs, list) and bool(refs), f"{name}: 缺少依据段落")
     require(all(isinstance(ref, str) and ref in blocks for ref in refs),
@@ -231,6 +234,16 @@ def validate(data):
             item = analysis[key]
             if key in {"function", "logic"} or item is not None:
                 validate_analysis(item, blocks, f"{bid}.{key}")
+        connections = analysis.get("connections")
+        if connections is not None:
+            require(isinstance(connections, dict) and {"before", "after"}.issubset(connections),
+                    f"{bid}: connections 需要 before 和 after")
+            for key in ("before", "after"):
+                item = connections[key]
+                validate_analysis(item, blocks, f"{bid}.connections.{key}", require_reason=False)
+                require(any(ref != bid for ref in item["refs"]),
+                        f"{bid}.connections.{key}: 需要至少一个其他来源块")
+                require(type(item.get("closure", False)) is bool, f"{bid}: closure 必须为布尔值")
         insights = analysis.get("insights", [])
         require(isinstance(insights, list), f"{bid}: insights 必须为数组")
         for index, item in enumerate(insights):
@@ -266,6 +279,25 @@ def validate(data):
         validate_summary(item, blocks, f"chain.{item['stage']}")
     for key in ("one_sentence", "strongest", "weakest"):
         validate_summary(overview.get(key), blocks, key, only_analysis=key != "one_sentence")
+    glossary = data.get("glossary", [])
+    require(isinstance(glossary, list), "glossary 必须为数组")
+    aliases = set()
+    for item in glossary:
+        require(isinstance(item, dict), "glossary 项必须为对象")
+        gid = item.get("id")
+        require(valid_id(gid) and gid not in ids, f"术语 ID 无效或重复: {gid}")
+        ids.add(gid)
+        term = text(item.get("term"), f"{gid}.term")
+        names = item.get("aliases", [])
+        require(isinstance(names, list) and all(isinstance(x, str) and x.strip() for x in names),
+                f"{gid}.aliases 必须为非空文本数组")
+        for name in dict.fromkeys([term, *names]):
+            require(name not in aliases, f"术语别名重复或含义不唯一: {name}")
+            aliases.add(name)
+        for key in ("expansion", "context", "boundary"):
+            if key in item:
+                text(item[key], f"{gid}.{key}")
+        validate_summary(item, blocks, f"glossary.{gid}")
     return blocks
 
 
@@ -287,8 +319,8 @@ def evidence_html(items, collapsible=False):
 
 
 def analysis_html(item):
-    return (f'<p>{esc(item["text"])}</p><p class="reason">推理 / 边界：{esc(item["reason"])}</p>'
-            + reference_links(item["refs"]))
+    reason = f'<p class="reason">推理 / 边界：{esc(item["reason"])}</p>' if item.get("reason") else ""
+    return f'<p>{esc(item["text"])}</p>' + reason + reference_links(item["refs"])
 
 
 def insight_html(item):
@@ -301,6 +333,100 @@ def insight_html(item):
             f'<p class="reason"><span>依据与推导</span>{esc(item["reason"])}</p>'
             f'<p class="insight-impact"><span>对结论的影响</span>{esc(item["implication"])}</p>'
             + check + "</details>" + reference_links(item["refs"]) + "</section>")
+
+
+def connections_html(analysis):
+    connections = analysis.get("connections")
+    if not connections:
+        return "".join(f'<div class="analysis-item"><strong>{label}</strong>{analysis_html(analysis[key])}</div>'
+                       for key, label in SLOTS.items() if analysis[key] is not None)
+    steps = [
+        ("承接前文", connections["before"]),
+        ("本段推进", analysis["function"]),
+        ("推理桥梁与证明责任", analysis["logic"]),
+        ("闭合论证" if connections["after"].get("closure") else "引向后文", connections["after"]),
+    ]
+    out = '<div class="local-argument-chain">'
+    for index, (label, item) in enumerate(steps, 1):
+        out += (f'<section class="argument-step"><h4><span>{index:02d}</span>{label}</h4>'
+                + analysis_html(item) + "</section>")
+    out += "</div>"
+    extras = "".join(f'<div class="analysis-item"><strong>{SLOTS[key]}</strong>{analysis_html(analysis[key])}</div>'
+                     for key in ("technique", "caveat") if analysis[key] is not None)
+    return out + (f'<details class="argument-extras"><summary>论证技巧与边界补充</summary>{extras}</details>'
+                  if extras else "")
+
+
+class NoteTerms(HTMLParser):
+    """Annotate only note text; preserve anchors, quotations and existing markup."""
+    VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+            "meta", "param", "source", "track", "wbr"}
+
+    def __init__(self, glossary):
+        super().__init__(convert_charrefs=True)
+        self.out, self.stack, self.entries = [], [], {}
+        for item in glossary:
+            for alias in dict.fromkeys([item["term"], *item.get("aliases", [])]):
+                self.entries[alias] = item
+        parts = []
+        for alias in sorted(self.entries, key=len, reverse=True):
+            left = r"(?<![A-Za-z0-9_])" if re.match(r"[A-Za-z0-9_]", alias) else ""
+            right = r"(?![A-Za-z0-9_])" if re.search(r"[A-Za-z0-9_]$", alias) else ""
+            parts.append(left + re.escape(alias) + right)
+        self.pattern = re.compile("|".join(parts)) if parts else None
+
+    def handle_starttag(self, tag, attrs):
+        self.out.append(self.get_starttag_text())
+        if tag not in self.VOID:
+            classes = dict(attrs).get("class", "").split()
+            self.stack.append((tag, tag in {"a", "button", "script", "style", "summary"}
+                               or "source-quote" in classes or "note-title" in classes))
+
+    def handle_startendtag(self, tag, attrs):
+        self.out.append(self.get_starttag_text())
+
+    def handle_endtag(self, tag):
+        self.out.append(f"</{tag}>")
+        if self.stack and self.stack[-1][0] == tag:
+            self.stack.pop()
+
+    def handle_data(self, value):
+        if not self.pattern or any(skip for _, skip in self.stack):
+            self.out.append(esc(value))
+            return
+        position = 0
+        for match in self.pattern.finditer(value):
+            self.out.append(esc(value[position:match.start()]))
+            item = self.entries[match[0]]
+            fallback = f'{item["term"]}：{item["text"]}'
+            self.out.append(
+                f'<button type="button" class="term-trigger" data-term-id="{esc(item["id"])}" '
+                f'aria-controls="term-popover" aria-expanded="false" '
+                f'aria-label="解释术语 {esc(match[0])}" title="{esc(fallback)}">{esc(match[0])}</button>')
+            position = match.end()
+        self.out.append(esc(value[position:]))
+
+    def annotate(self, value):
+        self.feed(value)
+        return "".join(self.out)
+
+
+def glossary_html(glossary):
+    out = []
+    for item in glossary:
+        label = "Paper" if item["type"] == "paper" else "Analysis"
+        expansion = f'<p class="term-expansion">{esc(item["expansion"])}</p>' if item.get("expansion") else ""
+        context = f'<p><strong>本文语境</strong>{esc(item["context"])}</p>' if item.get("context") else ""
+        boundary = f'<p class="reason"><strong>注意区分</strong>{esc(item["boundary"])}</p>' if item.get("boundary") else ""
+        refs = [x["ref"] for x in item["evidence"]] if item["type"] == "paper" else item["refs"]
+        basis = (evidence_html(item["evidence"], collapsible=True) if item["type"] == "paper"
+                 else f'<details><summary>释义依据</summary><p class="reason">{esc(item["reason"])}</p>'
+                 + reference_links(refs) + "</details>")
+        out.append(f'<section class="glossary-entry" id="{item["id"]}" data-term-title="{esc(item["term"])}">'
+                   f'<p class="term-provenance">{"论文定义 / 转述" if label == "Paper" else "模型释义"} '
+                   f'<span class="tag">[{label}]</span></p>{expansion}<p>{esc(item["text"])}</p>'
+                   + context + boundary + reference_links(refs) + basis + "</section>")
+    return "".join(out)
 
 
 def summary_html(item, show_label=True):
@@ -398,7 +524,7 @@ def media_html(media, content_dir):
             f'<figcaption>{esc(media["alt"])}</figcaption></figure>')
 
 
-def render_block(block, content_dir, references, used_ids, figures, explained=None):
+def render_block(block, content_dir, references, used_ids, figures, explained=None, glossary=()):
     if explained is None:
         explained = set()
     def explainer(kind, value):
@@ -421,11 +547,7 @@ def render_block(block, content_dir, references, used_ids, figures, explained=No
 <h3 class="note-title">作者明确说的 <span class="tag">[Paper]</span></h3>
 {explainer("paper", "原文中的明确陈述或忠实转述；不代表已被独立核实。") if paper_items else ""}
 <ol>{paper_items}</ol></div>''' if paper_items else "")
-    analysis_items = ""
-    for key, label in SLOTS.items():
-        item = block["analysis"][key]
-        if item is not None:
-            analysis_items += f'<div class="analysis-item"><strong>{label}</strong>{analysis_html(item)}</div>'
+    analysis_items = connections_html(block["analysis"])
     insights = block["analysis"].get("insights", [])
     if insights:
         extra = ('<details class="extra-insights"><summary>更多分析'
@@ -451,6 +573,8 @@ def render_block(block, content_dir, references, used_ids, figures, explained=No
                          f'rel="noopener noreferrer">{esc(item["citation"])}</a>')
         external += "</div>"
     cards = paper + analysis + external
+    if glossary:
+        cards = NoteTerms(glossary).annotate(cards)
     notes = f'<aside class="notes" aria-label="{bid} 的逐段批注">{cards}</aside>' if cards else ""
     row_class = "paragraph-row" if cards else "paragraph-row no-notes"
     return f'''<article class="{row_class}" id="{bid}" data-kind="{esc(block['kind'])}">
@@ -476,7 +600,8 @@ def build(data, content_dir, lora_font=None, plex_font=None):
     blocks = validate(data)
     references = bibliography_index(blocks)
     figures = figure_index(blocks)
-    used_ids = set(blocks) | RESERVED | {s["id"] for s in data["sections"]}
+    glossary = data.get("glossary", [])
+    used_ids = set(blocks) | RESERVED | {s["id"] for s in data["sections"]} | {g["id"] for g in glossary}
     styles, font_notes, licenses, seen_licenses = [], [], [], set()
     for family, override, filename in [
         ("Lora", lora_font, "Lora.ttf"), ("IBM Plex Sans", plex_font, "IBMPlexSans.ttf")
@@ -497,7 +622,8 @@ def build(data, content_dir, lora_font=None, plex_font=None):
     nav, body, explained = [], [], set()
     for section in data["sections"]:
         nav.append(f'<a href="#{section["id"]}">{esc(section["title"])}</a>')
-        rows = "".join(render_block(b, content_dir, references, used_ids, figures, explained) for b in section["blocks"])
+        rows = "".join(render_block(b, content_dir, references, used_ids, figures, explained, glossary)
+                       for b in section["blocks"])
         if section.get("collapsed"):
             inner = f'<details><summary class="section-heading">{esc(section["title"])}</summary>{rows}</details>'
         else:
@@ -526,6 +652,7 @@ def build(data, content_dir, lora_font=None, plex_font=None):
         "ONE": summary_html(overview["one_sentence"]),
         "STRONGEST": summary_html(overview["strongest"], False),
         "WEAKEST": summary_html(overview["weakest"], False), "LICENSES": "\n".join(licenses),
+        "GLOSSARY": glossary_html(glossary),
     }
     template = (SKILL_DIR / "assets" / "reader.html").read_text(encoding="utf-8")
     require(set(re.findall(r"@@([A-Z_]+)@@", template)) == set(values), "模板字段与生成器不一致")
