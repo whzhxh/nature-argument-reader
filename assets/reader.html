@@ -33,6 +33,10 @@ main{max-width:1408px;margin:auto;padding:26px 24px 55px}
 .paragraph-row{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:36px;padding:26px 0;border-bottom:1px solid var(--rule);align-items:start;scroll-margin-top:calc(var(--nav-height) + 15px)}
 .source-locator{font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;line-height:1.5}
 .source-locator a{text-decoration:none;font-weight:600}.original{font-family:"Lora",Georgia,"Times New Roman",serif;font-size:17px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere}
+.citation-link{color:inherit;text-decoration:underline;text-decoration-color:#7388a0;text-decoration-style:dotted;scroll-margin-top:15px}
+.citation-link:hover{color:#315c8c;text-decoration-style:solid}.citation-link:target{outline:2px solid #b2905b;outline-offset:3px;border-radius:2px}
+.paragraph-row[data-kind="reference"]:target>.bilingual{box-shadow:inset 3px 0 #b2905b;padding-left:12px}
+.citation-return{margin:0 0 12px}.citation-return button{border:1px solid #c8c0ae;background:#f0ece2;color:var(--navy);border-radius:4px;padding:5px 10px;font-size:12px}
 .original mark{color:inherit;padding:1px 2px;border-radius:3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 mark.thesis{background:var(--thesis)}mark.term{background:var(--term)}mark.evidence{background:var(--evidence)}mark.concession{background:var(--concession)}mark.method{background:var(--method)}
 body.no-highlights mark{background:transparent}
@@ -68,7 +72,7 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
 @media(max-width:1000px){.paragraph-row,.column-labels{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:23px}.nav-inner{flex-wrap:wrap;gap:5px}.nav-links{flex-basis:100%}.controls{padding:0 3px}.chain{grid-template-columns:1fr}.chain-card:not(:last-child)::after{content:"↓";right:15px;top:auto;bottom:-16px}.chain-card{padding:13px 16px}}
 @media(max-width:760px){.masthead{padding:27px 19px}.course{font-size:13px}main{padding:20px 18px 38px}.nav-inner{padding:7px 14px}.column-labels{display:none}.paragraph-row{grid-template-columns:1fr;gap:17px;padding:23px 0}.original{font-size:16px}.translation{font-size:14px}.notes{gap:10px}.assessments{grid-template-columns:1fr}.source-note{padding:12px 14px}.section-heading{font-size:19px}.legend{gap:7px 13px;font-size:11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-@media print{html{scroll-padding-top:0}body{font-size:10pt;background:white}.masthead{color:#14273e;background:white;padding:0 0 16px}.eyebrow,.course,.legend{color:#47566a}.section-nav,.column-labels{display:none}main{max-width:none;padding:12px 0}.paragraph-row{gap:20px;padding:16px 0;break-inside:auto}.original{font-size:10.5pt;line-height:1.7}.translation{font-size:9.5pt}.note-card{font-size:8.5pt;break-inside:avoid}.overview{break-before:page}.chain{grid-template-columns:1fr}.chain-card::after{display:none}a{color:inherit}mark,.note-card,.translation,.chain-card{print-color-adjust:exact;-webkit-print-color-adjust:exact}.reading-section details:not([open])>*:not(summary){display:block}body.only-paper .analysis-card,body.only-paper .external-card,body.only-analysis .paper-card,body.only-analysis .external-card{display:block}body.only-paper .overview [data-provenance],body.only-analysis .overview [data-provenance]{display:block}}
+@media print{html{scroll-padding-top:0}body{font-size:10pt;background:white}.masthead{color:#14273e;background:white;padding:0 0 16px}.eyebrow,.course,.legend{color:#47566a}.section-nav,.column-labels,.citation-return{display:none}main{max-width:none;padding:12px 0}.paragraph-row{gap:20px;padding:16px 0;break-inside:auto}.original{font-size:10.5pt;line-height:1.7}.translation{font-size:9.5pt}.note-card{font-size:8.5pt;break-inside:avoid}.overview{break-before:page}.chain{grid-template-columns:1fr}.chain-card::after{display:none}a{color:inherit}mark,.note-card,.translation,.chain-card{print-color-adjust:exact;-webkit-print-color-adjust:exact}.reading-section details:not([open])>*:not(summary){display:block}body.only-paper .analysis-card,body.only-paper .external-card,body.only-analysis .paper-card,body.only-analysis .external-card{display:block}body.only-paper .overview [data-provenance],body.only-analysis .overview [data-provenance]{display:block}}
 </style>
 </head>
 <body>
@@ -120,15 +124,37 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
     if (button.dataset.filter !== 'all') body.classList.add(`only-${button.dataset.filter}`);
     document.querySelectorAll('[data-filter]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
   }));
-  const reveal = hash => {
+  const reveal = (hash, focus = false) => {
     if (!hash || hash === '#') return;
-    const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+    let id;
+    try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
     if (!target) return;
     let node = target.parentElement;
     while (node) { if (node.tagName === 'DETAILS') node.open = true; node = node.parentElement; }
-    requestAnimationFrame(() => target.scrollIntoView({block:'start'}));
+    requestAnimationFrame(() => {
+      if (focus) {
+        if (!target.hasAttribute('tabindex') && !target.matches('a,button')) target.tabIndex = -1;
+        target.focus({preventScroll:true});
+      }
+      target.scrollIntoView({block:'start'});
+    });
   };
-  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', () => reveal(a.hash)));
+  let lastCitation = null;
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+    if (a.classList.contains('citation-link')) {
+      lastCitation = a;
+      document.querySelectorAll('.citation-return').forEach(control => control.hidden = true);
+      const control = document.getElementById(a.hash.slice(1))?.querySelector('.citation-return');
+      if (control) control.hidden = false;
+    }
+    reveal(a.hash, true);
+  }));
+  document.querySelectorAll('.citation-return button').forEach(button => button.addEventListener('click', () => {
+    if (!lastCitation) return;
+    location.hash = lastCitation.id;
+    reveal(location.hash, true);
+  }));
   window.addEventListener('hashchange', () => reveal(location.hash));
   if (location.hash) reveal(location.hash);
   let closedBeforePrint = [];

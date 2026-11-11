@@ -3,11 +3,11 @@
   "course": "学术论文论证阅读 · 合成材料演示",
   "bibliography": "本页为技能功能测试而原创的合成文本；非已发表论文，数据不代表真实实验。",
   "source": {
-    "description": "本技能附带的三段合成英文测试材料",
+    "description": "本技能附带的三段合成英文及一条合成参考文献",
     "mode": "source-limited",
     "scope": "excerpt",
-    "coverage": "完整展示三段合成材料，用于演示排版与来源区分；不对应任何真实论文。",
-    "expected_block_ids": ["S001", "S002", "S003"],
+    "coverage": "完整展示三段合成材料及一条参考文献，用于演示排版、引文跳转与来源区分；不对应任何真实论文。",
+    "expected_block_ids": ["S001", "S002", "S003", "R001"],
     "missing": [],
     "notes": ["以下英文、中文及示例数据均为合成测试内容，不得用于学术引用。"]
   },
@@ -20,8 +20,8 @@
           "id": "S001",
           "kind": "paragraph",
           "locator": {"label": "合成材料 · 第 1 段"},
-          "en": "Redundant execution can detect transient faults, but duplicating every operation consumes limited resources. We define selective replication as duplicating only operations designated by a configurable policy. We argue that selective replication can improve fault detection within a fixed resource budget.",
-          "zh": "冗余执行能够检测瞬态故障，但复制所有操作会消耗有限的资源。本文将选择性复制定义为：仅对可配置策略指定的操作进行复制。我们的核心主张是，在资源预算固定的条件下，选择性复制能够改善故障检测效果。",
+          "en": "Redundant execution can detect transient faults, but duplicating every operation consumes limited resources. We define selective replication as duplicating only operations designated by a configurable policy. We argue that selective replication can improve fault detection within a fixed resource budget. A synthetic background reference is provided in [1].",
+          "zh": "冗余执行能够检测瞬态故障，但复制所有操作会消耗有限的资源。本文将选择性复制定义为：仅对可配置策略指定的操作进行复制。我们的核心主张是，在资源预算固定的条件下，选择性复制能够改善故障检测效果。合成的背景文献见 [1]。",
           "highlights": [
             {"category": "term", "quote": "selective replication", "occurrence": 1},
             {"category": "thesis", "quote": "selective replication can improve fault detection within a fixed resource budget"}
@@ -106,6 +106,28 @@
             "function": {"text": "承认实验边界，并收束结论。", "reason": "让步句保留检测改善的观察，同时明确指出负载类型和故障类型的范围。", "refs": ["S003"]},
             "logic": {"text": "防止第二段的有限证据被过度外推。", "reason": "结论的适用对象被限制在实际接受评估的条件内，与第二段证据范围相匹配。", "refs": ["S002", "S003"]},
             "technique": {"text": "通过主动限定结论处理泛化层面的潜在异议。", "reason": "这是对段落作用的模型解释；原文明示的是测试范围有限，并未逐条列出反方论证。", "refs": ["S003"]},
+            "caveat": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "references",
+      "title": "References / 合成参考文献",
+      "collapsed": true,
+      "blocks": [
+        {
+          "id": "R001",
+          "kind": "reference",
+          "locator": {"label": "合成材料 · 参考文献 [1]"},
+          "en": "[1] Reader Demo Authors. A Synthetic Background Note on Redundant Execution. Fictional reference for navigation testing only.",
+          "zh": "[1] 阅读器演示作者：《冗余执行的合成背景说明》。本条为导航测试而编造，不可用于学术引用。",
+          "highlights": [],
+          "author": [],
+          "analysis": {
+            "function": {"text": "展示参考文献条目与引文导航。", "reason": "正文引文 [1] 指向这一合成条目，可从此返回点击位置。", "refs": ["S001", "R001"]},
+            "logic": {"text": "仅用于测试导航，不提供真实论据。", "reason": "条目明确标注为合成材料，因此不能充当外部学术证据。", "refs": ["R001"]},
+            "technique": null,
             "caveat": null
           }
         }
