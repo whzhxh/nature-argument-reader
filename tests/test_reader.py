@@ -282,6 +282,97 @@ class ReaderTests(unittest.TestCase):
         self.assertTrue(set(parsed.anchors).issubset(parsed.ids))
         self.assertEqual(parsed.originals, [b["en"] for s in self.data["sections"] for b in s["blocks"]])
 
+    def test_terms_match_longest_alias_with_boundaries_and_preserve_text(self):
+        entries = [
+            dict(id="G_TL", term="TL", aliases=["时间锁步"], text="Time redundancy."),
+            dict(id="G_NC", term="Non-Commit", text="First execution."),
+            dict(id="G_C", term="Commit", text="Second execution."),
+        ]
+        markup = ('<p>TL / ATL / TL_extra; 时间锁步与Non-Commit和Commit。 &amp; &lt;x&gt;</p>'
+                  '<a href="#S001">TL</a><blockquote class="source-quote">TL</blockquote>'
+                  '<summary>TL</summary><h3 class="note-title">TL</h3>')
+        rendered = reader.NoteTerms(entries).annotate(markup)
+        self.assertEqual(rendered.count('data-term-id="G_TL"'), 2)
+        self.assertEqual(rendered.count('data-term-id="G_NC"'), 1)
+        self.assertEqual(rendered.count('data-term-id="G_C"'), 1)
+        self.assertIn('<a href="#S001">TL</a>', rendered)
+        self.assertIn('<blockquote class="source-quote">TL</blockquote>', rendered)
+        self.assertIn('<summary>TL</summary>', rendered)
+        self.assertIn('ATL / TL_extra', rendered)
+        class Text(HTMLParser):
+            def __init__(self, value):
+                super().__init__()
+                self.values = []
+                self.feed(value)
+            def handle_data(self, value):
+                self.values.append(value)
+        self.assertEqual("".join(Text(markup).values), "".join(Text(rendered).values))
+
+    def test_glossary_provenance_unique_aliases_and_safe_rendering(self):
+        self.data["glossary"] = [
+            dict(id="G_policy", term="策略", aliases=["policy"], text="A bounded explanation.",
+                 type="analysis", reason="Grounded in the stated comparison.", refs=["S001"])
+        ]
+        reader.validate(self.data)
+        for change in (
+            {"id": "S001"}, {"id": "term-popover"}, {"aliases": [""]},
+            {"type": "external"}, {"reason": ""}, {"refs": ["missing"]},
+            {"type": "paper"}, {"context": ""},
+        ):
+            with self.subTest(change=change):
+                candidate = copy.deepcopy(self.data)
+                candidate["glossary"][0].update(change)
+                with self.assertRaises(ValueError):
+                    reader.validate(candidate)
+        candidate = copy.deepcopy(self.data)
+        candidate["glossary"].append(dict(candidate["glossary"][0], id="G_other"))
+        with self.assertRaises(ValueError):
+            reader.validate(candidate)
+        self.data["glossary"][0]["text"] = '<script>alert("term")</script>'
+        output = reader.build(self.data, ROOT)
+        self.assertIn('&lt;script&gt;alert', output)
+        self.assertNotIn('<script>alert("term")', output)
+        self.assertIn('data-term-id="G_policy"', output)
+        parsed = OutputParser()
+        parsed.feed(output)
+        self.assertEqual(parsed.originals, [b["en"] for s in self.data["sections"] for b in s["blocks"]])
+        self.assertEqual(len(parsed.ids), len(set(parsed.ids)))
+        self.assertTrue(set(parsed.anchors).issubset(parsed.ids))
+        item = self.data["glossary"][0]
+        item.update(type="paper", evidence=[dict(ref="S001", quote="Invented definition.")])
+        with self.assertRaises(ValueError):
+            reader.validate(self.data)
+        item["evidence"][0]["quote"] = self.data["sections"][0]["blocks"][0]["en"]
+        reader.validate(self.data)
+
+    def test_connections_require_other_blocks_and_remain_collapsed(self):
+        block = self.data["sections"][1]["blocks"][0]
+        block["analysis"]["connections"] = {
+            "before": dict(text="Operationalizes the budget in S001.", refs=["S001"]),
+            "after": dict(text="The limitation in S003 bounds this result.", refs=["S003"]),
+        }
+        reader.validate(self.data)
+        for connection in (
+            {"before": dict(text="Only self.", refs=["S002"])},
+            {"after": dict(text="No source.", refs=[])},
+            {"after": dict(text="Unknown source.", refs=["unknown"])},
+            {"after": dict(text="Invalid flag.", refs=["S003"], closure="yes")},
+        ):
+            with self.subTest(connection=connection):
+                candidate = copy.deepcopy(self.data)
+                candidate["sections"][1]["blocks"][0]["analysis"]["connections"].update(connection)
+                with self.assertRaises(ValueError):
+                    reader.validate(candidate)
+        output = reader.build(self.data, ROOT)
+        self.assertIn('class="local-argument-chain"', output)
+        self.assertNotIn('<details class="argument-details" open', output)
+        rendered = reader.connections_html(block["analysis"])
+        self.assertIn('href="#S001"', rendered)
+        self.assertIn('href="#S003"', rendered)
+        self.assertEqual(rendered.count('class="argument-step"'), 4)
+        block["analysis"]["connections"]["after"]["closure"] = True
+        self.assertIn("闭合论证", reader.connections_html(block["analysis"]))
+
 
 if __name__ == "__main__":
     unittest.main()
