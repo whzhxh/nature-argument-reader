@@ -237,6 +237,51 @@ class ReaderTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     reader.validate(data)
 
+    def test_deep_insights_require_grounding_impact_and_known_lens(self):
+        block = self.data["sections"][0]["blocks"][0]
+        block["analysis"]["insights"] = [{
+            "lens": "mechanism", "title": "A testable mechanism",
+            "text": "A bounded interpretation.", "reason": "Based on the supplied description.",
+            "implication": "Limits what can be concluded.", "refs": ["S001"],
+            "check": "Compare the stated conditions.",
+        }]
+        reader.validate(self.data)
+        for change in ({"lens": "made-up"}, {"refs": ["missing"]},
+                       {"implication": ""}, {"reason": ""}, {"check": ""}):
+            with self.subTest(change=change):
+                candidate = copy.deepcopy(self.data)
+                candidate["sections"][0]["blocks"][0]["analysis"]["insights"][0].update(change)
+                with self.assertRaises(ValueError):
+                    reader.validate(candidate)
+        block["analysis"]["insights"][0]["text"] = '<img src=x onerror="alert(1)">'
+        output = reader.build(self.data, ROOT)
+        self.assertNotIn('<img src=x', output)
+        self.assertIn("&lt;img src=x", output)
+
+    def test_source_explainers_reset_per_document_and_details_are_progressive(self):
+        output = reader.build(self.data, ROOT)
+        self.assertEqual(output.count('class="note-explainer"'), 2)
+        self.assertEqual(reader.build(self.data, ROOT).count('class="note-explainer"'), 2)
+        # The first block can legitimately have no author card.
+        self.data["sections"][0]["blocks"][0]["author"] = []
+        output = reader.build(self.data, ROOT)
+        self.assertEqual(output.count('class="note-explainer"'), 2)
+        first = self.data["sections"][0]["blocks"][0]
+        item = dict(lens="comparison", title="Same budget", text="A specific interpretation.",
+                    reason="The source holds this budget fixed.", implication="Bounds the comparison.",
+                    refs=["S001", "S002"])
+        first["analysis"]["insights"] = [item, copy.deepcopy(item)]
+        output = reader.build(self.data, ROOT)
+        self.assertIn('<details class="extra-insights">', output)
+        self.assertIn('<details class="insight-details">', output)
+        self.assertIn('<details class="quote-details">', output)
+        self.assertNotIn('<details class="insight-details" open', output)
+        self.assertNotIn('<details class="extra-insights" open', output)
+        parsed = OutputParser()
+        parsed.feed(output)
+        self.assertTrue(set(parsed.anchors).issubset(parsed.ids))
+        self.assertEqual(parsed.originals, [b["en"] for s in self.data["sections"] for b in s["blocks"]])
+
 
 if __name__ == "__main__":
     unittest.main()
