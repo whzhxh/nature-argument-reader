@@ -17,7 +17,8 @@ CATEGORIES = {
 SLOTS = {"function": "段落功能", "logic": "逻辑角色", "technique": "论证技巧", "caveat": "潜在漏洞 / 边界"}
 MEDIA_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
                ".gif": "image/gif", ".webp": "image/webp", ".avif": "image/avif"}
-RESERVED = {"top", "argument-overview", "highlights-toggle"}
+RESERVED = {"top", "argument-overview", "highlights-toggle", "reader-preview",
+            "reader-preview-title", "reader-preview-content"}
 
 
 def require(condition, message):
@@ -112,6 +113,44 @@ def bibliography_index(blocks):
     return result
 
 
+FIGURE_LABEL = re.compile(
+    r"(?P<prefix>\b(?:Fig(?:ure)?s?\.?|Tables?)\s*|[图表]\s*)"
+    r"(?P<number>[Ss]?[1-9][0-9]*)"
+    r"(?P<panel>[a-z]|\s*[(（][a-z][)）])?(?![A-Za-z0-9])", re.IGNORECASE)
+
+
+def figure_key(match):
+    prefix = match["prefix"].strip().lower()
+    kind = "table" if prefix.startswith("table") or prefix.startswith("表") else "figure"
+    panel = re.sub(r"[^a-z]", "", (match["panel"] or "").lower())
+    return kind, match["number"].upper(), panel
+
+
+def figure_index(blocks):
+    """Resolve labels from figure/table captions or an explicit xref_label."""
+    result = {}
+    for block in blocks.values():
+        explicit = block.get("xref_label")
+        eligible = block["kind"] in {"figure", "table"} or (
+            block["kind"] == "caption" and block.get("media"))
+        require(explicit is None or eligible, f"{block['id']}: xref_label 只用于图表块")
+        if not eligible:
+            continue
+        if explicit is not None:
+            match = FIGURE_LABEL.fullmatch(text(explicit, f"{block['id']}.xref_label").strip())
+            require(match is not None, f"{block['id']}: 无效的图表标签 {explicit!r}")
+        else:
+            match = FIGURE_LABEL.match(block["en"].lstrip())
+        if not match:
+            continue
+        key = figure_key(match)
+        require(block["kind"] == "caption" or block["kind"] == key[0],
+                f"{block['id']}: 图表标签与 kind 不一致")
+        require(key not in result, f"图表标签重复: {match[0]}")
+        result[key] = block["id"]
+    return result
+
+
 def validate(data):
     require(isinstance(data, dict), "根必须为对象")
     text(data.get("title"), "title")
@@ -162,8 +201,10 @@ def validate(data):
                 require("pdf_page" not in locator, f"{bid}: 当前模式不得填 PDF 页码")
             require(isinstance(block.get("uncertainty", ""), str), f"{bid}: uncertainty 必须为文本")
             require(type(block.get("link_citations", True)) is bool, f"{bid}: link_citations 必须为布尔值")
+            require(type(block.get("link_figures", True)) is bool, f"{bid}: link_figures 必须为布尔值")
             highlight_ranges(block)
     bibliography_index(blocks)
+    figure_index(blocks)
     expected = source.get("expected_block_ids")
     require(isinstance(expected, list) and bool(expected) and all(valid_id(x) for x in expected),
             "必须提供提取阶段的 expected_block_ids 清单")
@@ -258,13 +299,13 @@ CITATION_GROUP = re.compile(
 CITATION_ITEM = re.compile(r"([1-9][0-9]*)(?:\s*[-–—]\s*([1-9][0-9]*))?")
 
 
-def linked_text(block, language, references, used_ids):
+def linked_text(block, language, references, used_ids, figures):
     value = block[language]
     marks = highlight_ranges(block) if language == "en" else []
-    if block["kind"] == "reference" or not block.get("link_citations", True):
+    if block["kind"] == "reference":
         return marked_slice(value, 0, len(value), marks)
-    out, position, count = [], 0, 0
-    for group in CITATION_GROUP.finditer(value):
+    links = []
+    for group in CITATION_GROUP.finditer(value) if block.get("link_citations", True) else []:
         for item in CITATION_ITEM.finditer(group["items"]):
             first = int(item[1])
             last = int(item[2]) if item[2] else first
@@ -275,19 +316,37 @@ def linked_text(block, language, references, used_ids):
                 continue
             start = group.start("items") + item.start()
             end = group.start("items") + item.end()
-            count += 1
-            cid = f"citation-{block['id']}-{language}-{count}"
-            while cid in used_ids:
-                cid += "-x"
-            used_ids.add(cid)
             label = f"查看参考文献 {value[start:end]}"
             if first != last:
                 label += f"（从第 {first} 条开始）"
-            out.append(marked_slice(value, position, start, marks))
-            out.append(f'<a class="citation-link" id="{cid}" href="#{references[first]}" '
-                       f'aria-label="{esc(label)}" title="{esc(label)}">'
-                       + marked_slice(value, start, end, marks) + "</a>")
-            position = end
+            targets = " ".join(references[n] for n in range(first, last + 1))
+            links.append((start, end, references[first], "citation", label, targets, ""))
+    if block.get("link_figures", True):
+        for match in FIGURE_LABEL.finditer(value):
+            kind, number, panel = figure_key(match)
+            target = figures.get((kind, number, panel)) or figures.get((kind, number, ""))
+            if not target or target == block["id"]:
+                continue
+            if any(match.start() < end and match.end() > start for start, end, *_ in links):
+                continue
+            # A panel reference falls back to the whole figure only when no separate panel exists.
+            whole_panel = panel if panel and (kind, number, panel) not in figures else ""
+            links.append((match.start(), match.end(), target, "figure",
+                          f"查看{'表' if kind == 'table' else '图'} {number}{panel}", target, whole_panel))
+    out, position, counts = [], 0, {"citation": 0, "figure": 0}
+    for start, end, target, category, label, targets, panel in sorted(links):
+        counts[category] += 1
+        cid = f"{category}-{block['id']}-{language}-{counts[category]}"
+        while cid in used_ids:
+            cid += "-x"
+        used_ids.add(cid)
+        out.append(marked_slice(value, position, start, marks))
+        out.append(f'<a class="{category}-link preview-link" id="{cid}" href="#{target}" '
+                   f'data-preview-targets="{esc(targets)}" data-preview-label="{esc(value[start:end])}" '
+                   f'data-preview-panel="{esc(panel)}" aria-controls="reader-preview" aria-expanded="false" '
+                   f'aria-label="{esc(label)}" title="{esc(label)}">'
+                   + marked_slice(value, start, end, marks) + "</a>")
+        position = end
     out.append(marked_slice(value, position, len(value), marks))
     return "".join(out)
 
@@ -307,10 +366,10 @@ def media_html(media, content_dir):
             f'<figcaption>{esc(media["alt"])}</figcaption></figure>')
 
 
-def render_block(block, content_dir, references, used_ids):
+def render_block(block, content_dir, references, used_ids, figures):
     bid = block["id"]
-    original = linked_text(block, "en", references, used_ids)
-    translation = linked_text(block, "zh", references, used_ids)
+    original = linked_text(block, "en", references, used_ids, figures)
+    translation = linked_text(block, "zh", references, used_ids, figures)
     return_control = ('<div class="citation-return" hidden><button type="button">'
                       '↩ 返回刚才的引文</button></div>' if block["kind"] == "reference" else "")
     media = media_html(block["media"], content_dir) if block.get("media") else ""
@@ -364,6 +423,7 @@ def font_css(font_path, family):
 def build(data, content_dir, lora_font=None, plex_font=None):
     blocks = validate(data)
     references = bibliography_index(blocks)
+    figures = figure_index(blocks)
     used_ids = set(blocks) | RESERVED | {s["id"] for s in data["sections"]}
     styles, font_notes, licenses, seen_licenses = [], [], [], set()
     for family, override, filename in [
@@ -385,7 +445,7 @@ def build(data, content_dir, lora_font=None, plex_font=None):
     nav, body = [], []
     for section in data["sections"]:
         nav.append(f'<a href="#{section["id"]}">{esc(section["title"])}</a>')
-        rows = "".join(render_block(b, content_dir, references, used_ids) for b in section["blocks"])
+        rows = "".join(render_block(b, content_dir, references, used_ids, figures) for b in section["blocks"])
         if section.get("collapsed"):
             inner = f'<details><summary class="section-heading">{esc(section["title"])}</summary>{rows}</details>'
         else:
