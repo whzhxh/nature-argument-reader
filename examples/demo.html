@@ -80,6 +80,20 @@ body.no-highlights mark{background:transparent}
 .quote-details>summary,.insight-details>summary,.extra-insights>summary{cursor:pointer;font-size:11px;color:#70637b}
 .quote-details{margin-top:5px}.insight-details{margin:7px 0}.extra-insights{border-top:1px solid #ded6e6;padding-top:9px;margin-top:10px}
 .role-summary{font-size:12px}
+.local-argument-chain{margin-top:13px}.argument-step{border-left:1px solid #c9bdd3;padding:0 0 15px 13px;margin-left:6px}
+.argument-step:last-child{padding-bottom:0}.argument-step h4{font-size:12px;color:var(--navy);margin:0 0 5px;line-height:1.6}
+.argument-step h4>span{font-size:9px;color:#87709f;margin-right:7px}.argument-extras{margin-top:12px;font-size:11px}
+.term-trigger{display:inline;border:0;border-bottom:1px dotted #8a7499;background:transparent;padding:0;margin:0;color:inherit;font:inherit;line-height:inherit;vertical-align:baseline;text-align:inherit;border-radius:0;cursor:help}
+.term-trigger:hover,.term-trigger[aria-expanded="true"]{color:#5c3d7c;background:#e5dcec}
+.term-popover{position:fixed;z-index:12;display:grid;grid-template-rows:auto minmax(0,1fr);background:#fffdf8;border:1px solid #c6b8d0;border-top:3px solid #87709f;border-radius:7px;box-shadow:0 8px 25px #14273e24;font-size:12px;line-height:1.8;overflow:hidden}
+.term-popover[hidden]{display:none}.term-popover.term-inline{position:relative;width:100%;max-width:100%;margin:8px 0}
+.term-popover header{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:9px 12px;background:#f0edf5;border-bottom:1px solid #e1d8e7}
+.term-popover h2{font-size:14px;margin:0;color:var(--navy)}.term-close{background:transparent;border:0;font-size:20px;line-height:1.2;color:#655375;padding:0 4px}
+.term-popover-content{padding:10px 12px;overflow:auto;overscroll-behavior:contain;min-height:0}
+.term-popover p{margin:5px 0;overflow-wrap:anywhere}.term-popover strong{display:block;font-size:10px;color:#79618e}
+.term-expansion{font-size:11px;color:#657080}.term-provenance{font-size:10px;color:#79618e}
+.term-popover summary{cursor:pointer;font-size:10px;color:#79618e}
+@media print{.term-popover{display:none!important}.term-trigger{border:0;background:transparent;color:inherit}}
 .uncertainty{background:#fff0d8;color:#835c27;padding:9px 12px;font-size:12px;margin-top:12px;border-left:2px solid #b78b42}
 figure{margin:18px 0}figure img{display:block;max-width:100%;max-height:850px;height:auto;margin:auto;border:1px solid var(--rule)}
 figure figcaption{font-size:11px;color:var(--muted);margin-top:6px}.overview{margin-top:52px;padding-top:20px;border-top:3px solid var(--navy)}
@@ -132,10 +146,10 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
 <aside class="notes" aria-label="S001 的逐段批注"><div class="note-card paper-card" data-provenance="paper">
 <h3 class="note-title">作者明确说的 <span class="tag">[Paper]</span></h3>
 <p class="note-explainer">原文中的明确陈述或忠实转述；不代表已被独立核实。</p>
-<ol><li><p>作者将选择性复制界定为仅复制可配置策略指定的操作。</p><details class="quote-details"><summary>核对原文证据</summary><blockquote class="source-quote" lang="en">We define selective replication as duplicating only operations designated by a configurable policy.</blockquote></details><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></li><li><p>作者提出，选择性复制可在固定资源预算内改善故障检测效果。</p><details class="quote-details"><summary>核对原文证据</summary><blockquote class="source-quote" lang="en">We argue that selective replication can improve fault detection within a fixed resource budget.</blockquote></details><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></li></ol></div><div class="note-card analysis-card" data-provenance="analysis">
+<ol><li><p>作者将<button type="button" class="term-trigger" data-term-id="G_selective" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 选择性复制" title="选择性复制：仅复制可配置策略指定的操作。">选择性复制</button>界定为仅复制可配置策略指定的操作。</p><details class="quote-details"><summary>核对原文证据</summary><blockquote class="source-quote" lang="en">We define selective replication as duplicating only operations designated by a configurable policy.</blockquote></details><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></li><li><p>作者提出，<button type="button" class="term-trigger" data-term-id="G_selective" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 选择性复制" title="选择性复制：仅复制可配置策略指定的操作。">选择性复制</button>可在<button type="button" class="term-trigger" data-term-id="G_budget" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 固定资源预算" title="固定预算：比较双方可用的复制资源总量相同。">固定资源预算</button>内改善故障检测效果。</p><details class="quote-details"><summary>核对原文证据</summary><blockquote class="source-quote" lang="en">We argue that selective replication can improve fault detection within a fixed resource budget.</blockquote></details><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></li></ol></div><div class="note-card analysis-card" data-provenance="analysis">
 <h3 class="note-title">模型推断的 <span class="tag">[Analysis]</span></h3>
 <p class="note-explainer">下列功能、逻辑角色及评价为模型解读，并非作者原话。</p>
-<section class="insight" data-lens="assumption"><div class="insight-lens">成立条件</div><h4>固定预算使选择策略成为真正的比较对象</h4><p>在这个合成例子中，改善主张来自资源分配方式，而不是增加复制总量。</p><details class="insight-details"><summary>展开依据、影响与核验</summary><p class="reason"><span>依据与推导</span>S001 限定固定预算，S002 也在相同预算下比较两种策略，问题与检验条件对应。</p><p class="insight-impact"><span>对结论的影响</span>这是一处证据设计上的优点；策略如何选择操作仍需另行描述。</p></details><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></section><details class="argument-details"><summary>段落作用与论证衔接</summary><div class="analysis-item"><strong>段落功能</strong><p>引出资源约束下的研究问题，并提出中心论点。</p><p class="reason">推理 / 边界：段落从全面复制的资源代价转向选择性复制的定义，最后明确给出主张。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></div><div class="analysis-item"><strong>逻辑角色</strong><p>建立后续证据需要回答的比较问题。</p><p class="reason">推理 / 边界：“固定资源预算”限定了比较条件，后续评估需要说明改善相对于哪一种基线。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></div><div class="analysis-item"><strong>论证技巧</strong><p>先界定概念，再提出带约束的主张。</p><p class="reason">推理 / 边界：定义句降低术语歧义，预算限定使主张具有可检验的边界。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></div><div class="analysis-item"><strong>潜在漏洞 / 边界</strong><p>本段尚未说明策略如何选择操作。</p><p class="reason">推理 / 边界：第一段只给出可配置策略这一抽象描述，不能据此推断具体筛选机制。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></div></details></div></aside></article></section>
+<section class="insight" data-lens="assumption"><div class="insight-lens">成立条件</div><h4><button type="button" class="term-trigger" data-term-id="G_budget" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 固定预算" title="固定预算：比较双方可用的复制资源总量相同。">固定预算</button>使选择策略成为真正的比较对象</h4><p>在这个合成例子中，改善主张来自资源分配方式，而不是增加复制总量。</p><details class="insight-details"><summary>展开依据、影响与核验</summary><p class="reason"><span>依据与推导</span>S001 限定<button type="button" class="term-trigger" data-term-id="G_budget" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 固定预算" title="固定预算：比较双方可用的复制资源总量相同。">固定预算</button>，S002 也在相<button type="button" class="term-trigger" data-term-id="G_budget" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 同预算" title="固定预算：比较双方可用的复制资源总量相同。">同预算</button>下比较两种策略，问题与检验条件对应。</p><p class="insight-impact"><span>对结论的影响</span>这是一处证据设计上的优点；策略如何选择操作仍需另行描述。</p></details><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></section><details class="argument-details"><summary>段落作用与论证衔接</summary><div class="analysis-item"><strong>段落功能</strong><p>引出资源约束下的研究问题，并提出中心论点。</p><p class="reason">推理 / 边界：段落从全面复制的资源代价转向<button type="button" class="term-trigger" data-term-id="G_selective" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 选择性复制" title="选择性复制：仅复制可配置策略指定的操作。">选择性复制</button>的定义，最后明确给出主张。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></div><div class="analysis-item"><strong>逻辑角色</strong><p>建立后续证据需要回答的比较问题。</p><p class="reason">推理 / 边界：“<button type="button" class="term-trigger" data-term-id="G_budget" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 固定资源预算" title="固定预算：比较双方可用的复制资源总量相同。">固定资源预算</button>”限定了比较条件，后续评估需要说明改善相对于哪一种<button type="button" class="term-trigger" data-term-id="G_baseline" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 基线" title="基线：用来判断新方法是否改善结果的参照方案。">基线</button>。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></div><div class="analysis-item"><strong>论证技巧</strong><p>先界定概念，再提出带约束的主张。</p><p class="reason">推理 / 边界：定义句降低术语歧义，预算限定使主张具有可检验的边界。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></div><div class="analysis-item"><strong>潜在漏洞 / 边界</strong><p>本段尚未说明策略如何选择操作。</p><p class="reason">推理 / 边界：第一段只给出可配置策略这一抽象描述，不能据此推断具体筛选机制。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></div></details></div></aside></article></section>
 <section class="reading-section" id="evidence"><h2 class="section-heading">2 Method &amp; Evidence / 方法与证据</h2><article class="paragraph-row" id="S002" data-kind="paragraph">
 <div class="bilingual"><div class="source-locator"><a href="#S002">S002</a><span>合成材料 · 第 2 段</span></div>
 <div class="original" lang="en">We compared a selective policy with uniform replication <mark class="method" title="方法论">using the same replication budget on three synthetic workloads</mark>. Across 300 injected transient faults per policy, <mark class="evidence" title="实证证据">the selective policy detected 264 faults, whereas uniform replication detected 231</mark>. These results support a detection benefit under the tested conditions.</div>
@@ -146,7 +160,7 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
 <ol><li><p>作者报告，两种策略的复制预算相同，评估对象为三种合成工作负载。</p><details class="quote-details"><summary>核对原文证据</summary><blockquote class="source-quote" lang="en">We compared a selective policy with uniform replication using the same replication budget on three synthetic workloads.</blockquote></details><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></li><li><p>每种策略各注入 300 次故障，选择性策略检测到 264 次，均匀复制检测到 231 次。</p><details class="quote-details"><summary>核对原文证据</summary><blockquote class="source-quote" lang="en">Across 300 injected transient faults per policy, the selective policy detected 264 faults, whereas uniform replication detected 231.</blockquote></details><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></li></ol></div><div class="note-card analysis-card" data-provenance="analysis">
 <h3 class="note-title">模型推断的 <span class="tag">[Analysis]</span></h3>
 
-<section class="insight" data-lens="quantitative"><div class="insight-lens">定量核读</div><h4>提高 11 个百分点，不等于提高 11%</h4><p>按合成数据计算，检测率为 88% 与 77%，相差 11 个百分点，相对提升约 14.3%。</p><details class="insight-details"><summary>展开依据、影响与核验</summary><p class="reason"><span>依据与推导</span>模型复算：264/300=88%，231/300=77%；(264−231)/231≈14.3%。</p><p class="insight-impact"><span>对结论的影响</span>这些数值只描述点估计，不能单凭检测总数判断统计显著性或负载间一致性。</p><p class="insight-check"><span>如何核验</span>核对各负载计数、注入是否配对以及独立采样单位，再决定如何估计不确定性。</p></details><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></section><details class="extra-insights"><summary>更多分析（1 条）</summary><section class="insight" data-lens="comparison"><div class="insight-lens">比较是否公平</div><h4>同预算控制了一个混杂因素</h4><p>总资源相同有助于把差异归因于策略，但还需核对两组故障暴露是否可比。</p><details class="insight-details"><summary>展开依据、影响与核验</summary><p class="reason"><span>依据与推导</span>所给三段只交代每策略 300 次注入，没有说明地址/时刻分布或配对关系。</p><p class="insight-impact"><span>对结论的影响</span>检测更多支持局部收益；尚不足以排除注入组成差异的影响。</p><p class="insight-check"><span>如何核验</span>在同一故障集合上配对比较，或报告抽样分布与分层结果。</p></details><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></section></details><details class="argument-details"><summary>段落作用与论证衔接</summary><div class="analysis-item"><strong>段落功能</strong><p>交代比较方法并提供定量依据。</p><p class="reason">推理 / 边界：同一预算、明确基线和检测计数共同回应第一段的受约束主张。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></div><div class="analysis-item"><strong>逻辑角色</strong><p>把中心论点推进到所测条件下的经验支持。</p><p class="reason">推理 / 边界：检测计数提供方向一致的支持，但论据范围限于这三种合成工作负载。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></div><div class="analysis-item"><strong>论证技巧</strong><p>通过控制资源预算提高比较的相关性。</p><p class="reason">推理 / 边界：预算条件与第一段主张相同，使该比较直接回应资源约束问题。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></div><div class="analysis-item"><strong>潜在漏洞 / 边界</strong><p>这三段材料不足以判断结果的不确定性。</p><p class="reason">推理 / 边界：未给出故障采样分布、重复实验或区间估计；此观察不等于作者未在其他材料中报告这些信息。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div></details></div></aside></article></section>
+<section class="insight" data-lens="quantitative"><div class="insight-lens">定量核读</div><h4>提高 11 个百分点，不等于提高 11%</h4><p>按合成数据计算，检测率为 88% 与 77%，相差 11 个百分点，相对提升约 14.3%。</p><details class="insight-details"><summary>展开依据、影响与核验</summary><p class="reason"><span>依据与推导</span>模型复算：264/300=88%，231/300=77%；(264−231)/231≈14.3%。</p><p class="insight-impact"><span>对结论的影响</span>这些数值只描述点估计，不能单凭检测总数判断统计显著性或负载间一致性。</p><p class="insight-check"><span>如何核验</span>核对各负载计数、注入是否配对以及独立采样单位，再决定如何估计不确定性。</p></details><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></section><details class="extra-insights"><summary>更多分析（1 条）</summary><section class="insight" data-lens="comparison"><div class="insight-lens">比较是否公平</div><h4><button type="button" class="term-trigger" data-term-id="G_budget" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 同预算" title="固定预算：比较双方可用的复制资源总量相同。">同预算</button>控制了一个混杂因素</h4><p>总资源相同有助于把差异归因于策略，但还需核对两组故障暴露是否可比。</p><details class="insight-details"><summary>展开依据、影响与核验</summary><p class="reason"><span>依据与推导</span>所给三段只交代每策略 300 次注入，没有说明地址/时刻分布或配对关系。</p><p class="insight-impact"><span>对结论的影响</span>检测更多支持局部收益；尚不足以排除注入组成差异的影响。</p><p class="insight-check"><span>如何核验</span>在同一故障集合上配对比较，或报告抽样分布与分层结果。</p></details><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></section></details><details class="argument-details"><summary>段落作用与论证衔接</summary><div class="local-argument-chain"><section class="argument-step"><h4><span>01</span>承接前文</h4><p>S001 将检测改善限定在<button type="button" class="term-trigger" data-term-id="G_budget" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 固定预算" title="固定预算：比较双方可用的复制资源总量相同。">固定预算</button>内，本段将这个约束落实为<button type="button" class="term-trigger" data-term-id="G_budget" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 同预算" title="固定预算：比较双方可用的复制资源总量相同。">同预算</button>的均匀复制对照，使证据与主张对齐。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></section><section class="argument-step"><h4><span>02</span>本段推进</h4><p>交代比较方法并提供定量依据。</p><p class="reason">推理 / 边界：<button type="button" class="term-trigger" data-term-id="G_budget" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 同一预算" title="固定预算：比较双方可用的复制资源总量相同。">同一预算</button>、明确<button type="button" class="term-trigger" data-term-id="G_baseline" aria-controls="term-popover" aria-expanded="false" aria-label="解释术语 基线" title="基线：用来判断新方法是否改善结果的参照方案。">基线</button>和检测计数共同回应第一段的受约束主张。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></section><section class="argument-step"><h4><span>03</span>推理桥梁与证明责任</h4><p>把中心论点推进到所测条件下的经验支持。</p><p class="reason">推理 / 边界：检测计数提供方向一致的支持，但论据范围限于这三种合成工作负载。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></section><section class="argument-step"><h4><span>04</span>引向后文</h4><p>S003 用工作负载范围约束这一检测优势，避免将局部观察升级为所有场景的保证。</p><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></section></div><details class="argument-extras"><summary>论证技巧与边界补充</summary><div class="analysis-item"><strong>论证技巧</strong><p>通过控制资源预算提高比较的相关性。</p><p class="reason">推理 / 边界：预算条件与第一段主张相同，使该比较直接回应资源约束问题。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></div><div class="analysis-item"><strong>潜在漏洞 / 边界</strong><p>这三段材料不足以判断结果的不确定性。</p><p class="reason">推理 / 边界：未给出故障采样分布、重复实验或区间估计；此观察不等于作者未在其他材料中报告这些信息。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div></details></details></div></aside></article></section>
 <section class="reading-section" id="boundary"><h2 class="section-heading">3 Boundary &amp; Conclusion / 边界与结论</h2><article class="paragraph-row" id="S003" data-kind="paragraph">
 <div class="bilingual"><div class="source-locator"><a href="#S003">S003</a><span>合成材料 · 第 3 段</span></div>
 <div class="original" lang="en">Although the selective policy improved detection in this experiment, <mark class="concession" title="让步/反驳">the workloads were synthetic and permanent faults were not tested</mark>. We therefore <mark class="thesis" title="核心论点">limit our conclusion to transient faults under the evaluated workloads</mark>. Further evaluation is needed before extending the claim to deployed systems.</div>
@@ -157,7 +171,7 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
 <ol><li><p>作者明确指出，工作负载为合成负载，永久性故障尚未测试。</p><details class="quote-details"><summary>核对原文证据</summary><blockquote class="source-quote" lang="en">the workloads were synthetic and permanent faults were not tested</blockquote></details><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></li><li><p>作者将结论限定为所测工作负载下的瞬态故障，并要求在面向实际部署作推广前继续评估。</p><details class="quote-details"><summary>核对原文证据</summary><blockquote class="source-quote" lang="en">We therefore limit our conclusion to transient faults under the evaluated workloads. Further evaluation is needed before extending the claim to deployed systems.</blockquote></details><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></li></ol></div><div class="note-card analysis-card" data-provenance="analysis">
 <h3 class="note-title">模型推断的 <span class="tag">[Analysis]</span></h3>
 
-<section class="insight" data-lens="boundary"><div class="insight-lens">适用边界</div><h4>扩大结论需要改变测试内容，而非只增加次数</h4><p>合成负载与永久故障是两种不同的外推边界；重复更多次原实验不会自动补齐它们。</p><details class="insight-details"><summary>展开依据、影响与核验</summary><p class="reason"><span>依据与推导</span>作者分别限定了负载类型与故障类型，现有证据只落在两者的交集。</p><p class="insight-impact"><span>对结论的影响</span>若目标是部署系统，应先明确目标任务和故障集合，再决定新增哪类验证。</p></details><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></section><details class="argument-details"><summary>段落作用与论证衔接</summary><div class="analysis-item"><strong>段落功能</strong><p>承认实验边界，并收束结论。</p><p class="reason">推理 / 边界：让步句保留检测改善的观察，同时明确指出负载类型和故障类型的范围。</p><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div><div class="analysis-item"><strong>逻辑角色</strong><p>防止第二段的有限证据被过度外推。</p><p class="reason">推理 / 边界：结论的适用对象被限制在实际接受评估的条件内，与第二段证据范围相匹配。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div><div class="analysis-item"><strong>论证技巧</strong><p>通过主动限定结论处理泛化层面的潜在异议。</p><p class="reason">推理 / 边界：这是对段落作用的模型解释；原文明示的是测试范围有限，并未逐条列出反方论证。</p><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div></details></div></aside></article></section>
+<section class="insight" data-lens="boundary"><div class="insight-lens">适用边界</div><h4>扩大结论需要改变测试内容，而非只增加次数</h4><p>合成负载与永久故障是两种不同的外推边界；重复更多次原实验不会自动补齐它们。</p><details class="insight-details"><summary>展开依据、影响与核验</summary><p class="reason"><span>依据与推导</span>作者分别限定了负载类型与故障类型，现有证据只落在两者的交集。</p><p class="insight-impact"><span>对结论的影响</span>若目标是部署系统，应先明确目标任务和故障集合，再决定新增哪类验证。</p></details><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></section><details class="argument-details"><summary>段落作用与论证衔接</summary><div class="local-argument-chain"><section class="argument-step"><h4><span>01</span>承接前文</h4><p>S002 的检测计数支持已测试条件下的差异，本段进一步判断这份证据能推广到什么范围。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></section><section class="argument-step"><h4><span>02</span>本段推进</h4><p>承认实验边界，并收束结论。</p><p class="reason">推理 / 边界：让步句保留检测改善的观察，同时明确指出负载类型和故障类型的范围。</p><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></section><section class="argument-step"><h4><span>03</span>推理桥梁与证明责任</h4><p>防止第二段的有限证据被过度外推。</p><p class="reason">推理 / 边界：结论的适用对象被限制在实际接受评估的条件内，与第二段证据范围相匹配。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></section><section class="argument-step"><h4><span>04</span>闭合论证</h4><p>回扣 S001 的受约束主张：现有计数与其相容，但结论仅覆盖 S002 的合成负载与预算条件。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></section></div><details class="argument-extras"><summary>论证技巧与边界补充</summary><div class="analysis-item"><strong>论证技巧</strong><p>通过主动限定结论处理泛化层面的潜在异议。</p><p class="reason">推理 / 边界：这是对段落作用的模型解释；原文明示的是测试范围有限，并未逐条列出反方论证。</p><div class="refs"><a href="#S003" aria-label="查看依据 S003">↗ S003</a></div></div></details></details></div></aside></article></section>
 <section class="reading-section" id="references"><details><summary class="section-heading">References / 合成参考文献</summary><article class="paragraph-row" id="R001" data-kind="reference">
 <div class="bilingual"><div class="source-locator"><a href="#R001">R001</a><span>合成材料 · 参考文献 [1]</span></div>
 <div class="citation-return" hidden><button type="button">↩ 返回刚才的引文</button></div><div class="original" lang="en">[1] Reader Demo Authors. A Synthetic Background Note on Redundant Execution. Fictional reference for navigation testing only.</div>
@@ -361,6 +375,11 @@ FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 </pre></details></footer>
 </main>
+<div id="reader-glossary" hidden><section class="glossary-entry" id="G_selective" data-term-title="选择性复制"><p class="term-provenance">论文定义 / 转述 <span class="tag">[Paper]</span></p><p class="term-expansion">Selective replication · 选择性复制</p><p>仅复制可配置策略指定的操作。</p><p><strong>本文语境</strong>此处为合成文本对该术语的明确定义。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div><details class="quote-details"><summary>核对原文证据</summary><blockquote class="source-quote" lang="en">We define selective replication as duplicating only operations designated by a configurable policy.</blockquote></details><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a></div></section><section class="glossary-entry" id="G_budget" data-term-title="固定预算"><p class="term-provenance">模型释义 <span class="tag">[Analysis]</span></p><p>比较双方可用的复制资源总量相同。</p><p><strong>本文语境</strong>合成例子把资源分配方式作为比较变量。</p><p class="reason"><strong>注意区分</strong>同预算不自动保证实现开销或吞吐量也相同。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div><details><summary>释义依据</summary><p class="reason">S001 限定主张范围，S002 描述相同复制预算下的对照。</p><div class="refs"><a href="#S001" aria-label="查看依据 S001">↗ S001</a><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></details></section><section class="glossary-entry" id="G_baseline" data-term-title="基线"><p class="term-provenance">模型释义 <span class="tag">[Analysis]</span></p><p>用来判断新方法是否改善结果的参照方案。</p><p><strong>本文语境</strong>这里指均匀复制策略。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div><details><summary>释义依据</summary><p class="reason">S002 明确将选择性策略与均匀复制策略比较。</p><div class="refs"><a href="#S002" aria-label="查看依据 S002">↗ S002</a></div></details></section></div>
+<aside class="term-popover" id="term-popover" role="region" aria-labelledby="term-popover-title" hidden>
+<header><h2 id="term-popover-title">术语解释</h2><button type="button" class="term-close" aria-label="关闭术语解释">×</button></header>
+<div class="term-popover-content" id="term-popover-content"></div>
+</aside>
 <aside class="reader-preview" id="reader-preview" role="region" aria-labelledby="reader-preview-title" hidden>
 <div class="preview-header"><h2 id="reader-preview-title">图表与参考文献预览</h2><button type="button" class="preview-close" aria-label="关闭预览">×</button></div>
 <div class="preview-content" id="reader-preview-content"></div>
@@ -479,6 +498,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     const p = document.createElement('p'); p.className = className; p.textContent = value; return p;
   };
   const showPreview = anchor => {
+    hideTermPopover();
     clearTimeout(openTimer); cancelClose();
     if (dismissedAnchor === anchor) return;
     const targets = (anchor.dataset.previewTargets || '').split(/\s+/).filter(Boolean);
@@ -585,9 +605,116 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   window.addEventListener('scroll',queuePosition,{passive:true});
   window.addEventListener('resize',queuePosition);
   document.addEventListener('toggle',queuePosition,true);
+  const termPopover = document.getElementById('term-popover');
+  const termContent = document.getElementById('term-popover-content');
+  const termTitle = document.getElementById('term-popover-title');
+  let activeTerm = null, termOpenTimer, termCloseTimer, termFrame, dismissedTerm = null;
+  function hideTermPopover() {
+    clearTimeout(termOpenTimer); clearTimeout(termCloseTimer);
+    if (activeTerm) activeTerm.setAttribute('aria-expanded','false');
+    activeTerm = null;
+    termPopover.hidden = true;
+  }
+  function positionTermPopover() {
+    if (termPopover.hidden || !activeTerm) return;
+    const row = activeTerm.closest('.paragraph-row');
+    const notes = activeTerm.closest('.notes');
+    const bilingual = row?.querySelector('.bilingual');
+    if (!notes || !bilingual || !activeTerm.getClientRects().length) { hideTermPopover(); return; }
+    const left = bilingual.getBoundingClientRect(), side = notes.getBoundingClientRect();
+    const navBottom = Math.max(0,nav.getBoundingClientRect().bottom), margin = 12;
+    const width = Math.min(390,side.width,innerWidth-side.left-margin);
+    const inlineTerm = () => {
+      // Normal flow is also the fallback when annotations are stacked beneath text.
+      const near = activeTerm.closest('p,h4,.role-summary') || activeTerm.closest('.note-card');
+      if (near && termPopover.previousElementSibling !== near) near.after(termPopover);
+      termPopover.classList.add('term-inline');
+      Object.assign(termPopover.style,{left:'',top:'',width:'100%',maxHeight:'min(380px,65vh)'});
+      termPopover.dataset.placement = 'inline';
+    };
+    if (side.left < left.right - 1 || width < 240 || innerHeight-navBottom < 240) {
+      inlineTerm();
+      return;
+    }
+    if (termPopover.parentElement !== body) body.append(termPopover);
+    termPopover.classList.remove('term-inline');
+    Object.assign(termPopover.style,{width:`${width}px`,maxHeight:`${Math.min(390,innerHeight-navBottom-margin*2)}px`});
+    const r = activeTerm.getBoundingClientRect(), height = termPopover.getBoundingClientRect().height;
+    let top = r.bottom + 8;
+    if (top + height > innerHeight-margin) top = r.top-height-8;
+    top = Math.max(navBottom+margin,Math.min(top,innerHeight-height-margin));
+    Object.assign(termPopover.style,{left:`${side.left}px`,top:`${top}px`});
+    termPopover.dataset.placement = 'sidebar';
+    const box = termPopover.getBoundingClientRect();
+    const overlaps = Array.from(document.querySelectorAll('main .original,main .translation,main .bilingual>figure'))
+      .some(node => {
+        const r = node.getBoundingClientRect();
+        return r.width && r.height && Math.min(box.right,r.right)-Math.max(box.left,r.left)>1
+          && Math.min(box.bottom,r.bottom)-Math.max(box.top,r.top)>1;
+      });
+    if (overlaps) inlineTerm();
+  }
+  function queueTermPosition() {
+    cancelAnimationFrame(termFrame);
+    termFrame = requestAnimationFrame(positionTermPopover);
+  }
+  function showTermPopover(anchor) {
+    clearTimeout(termOpenTimer); clearTimeout(termCloseTimer);
+    if (dismissedTerm === anchor) return;
+    const entry = document.getElementById(anchor.dataset.termId);
+    if (!entry?.classList.contains('glossary-entry')) return;
+    hidePreview();
+    if (activeTerm && activeTerm !== anchor) activeTerm.setAttribute('aria-expanded','false');
+    activeTerm = anchor;
+    anchor.setAttribute('aria-expanded','true');
+    termTitle.textContent = entry.dataset.termTitle;
+    termContent.replaceChildren(...Array.from(entry.childNodes).map(n=>n.cloneNode(true)));
+    termContent.scrollTop = 0;
+    termPopover.hidden = false;
+    positionTermPopover();
+  }
+  function scheduleTermClose() {
+    clearTimeout(termOpenTimer); clearTimeout(termCloseTimer);
+    termCloseTimer = setTimeout(() => {
+      if (!termPopover.matches(':hover') && !termPopover.contains(document.activeElement)
+          && document.activeElement !== activeTerm) hideTermPopover();
+    },450);
+  }
+  document.querySelectorAll('.notes .term-trigger').forEach(anchor => {
+    anchor.removeAttribute('title');
+    anchor.addEventListener('pointerenter', () => {
+      dismissedTerm = null; clearTimeout(termCloseTimer); clearTimeout(termOpenTimer);
+      termOpenTimer = setTimeout(()=>showTermPopover(anchor),160);
+    });
+    anchor.addEventListener('pointerleave',scheduleTermClose);
+    anchor.addEventListener('focus',()=>showTermPopover(anchor));
+    anchor.addEventListener('blur',()=>{ if (dismissedTerm === anchor) dismissedTerm = null; scheduleTermClose(); });
+    anchor.addEventListener('click',()=>{ dismissedTerm = null; showTermPopover(anchor); });
+  });
+  termPopover.addEventListener('pointerenter',()=>clearTimeout(termCloseTimer));
+  termPopover.addEventListener('pointerleave',scheduleTermClose);
+  termPopover.addEventListener('focusin',()=>clearTimeout(termCloseTimer));
+  termPopover.addEventListener('focusout',scheduleTermClose);
+  function dismissTermPopover() {
+    const anchor = activeTerm;
+    dismissedTerm = anchor; hideTermPopover(); anchor?.focus({preventScroll:true});
+  }
+  termPopover.querySelector('.term-close').addEventListener('click',dismissTermPopover);
+  document.addEventListener('keydown',e=>{
+    if (e.key === 'Escape' && !termPopover.hidden) { e.preventDefault(); dismissTermPopover(); }
+  });
+  document.addEventListener('click',e=>{
+    if (activeTerm && !e.target.closest('.term-trigger') && !termPopover.contains(e.target)) hideTermPopover();
+  });
+  window.addEventListener('scroll',queueTermPosition,{passive:true});
+  window.addEventListener('resize',queueTermPosition);
+  document.addEventListener('toggle',queueTermPosition,true);
   let lastCitation = null;
   document.addEventListener('click',e => {
-    if (e.target.closest('summary,.controls')) hidePreview();
+    if (e.target.closest('summary,.controls')) {
+      hidePreview();
+      if (!termPopover.contains(e.target)) hideTermPopover();
+    }
     const a = e.target.closest('a[href^="#"]');
     if (!a) return;
     const source = preview.contains(a) ? previewAnchor : a;
@@ -598,6 +725,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       if (control) control.hidden = false;
     }
     hidePreview();
+    hideTermPopover();
     reveal(a.hash, true);
   });
   document.querySelectorAll('.citation-return button').forEach(button => button.addEventListener('click', () => {
@@ -610,6 +738,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   let closedBeforePrint = [];
   window.addEventListener('beforeprint', () => {
     hidePreview();
+    hideTermPopover();
     closedBeforePrint = Array.from(document.querySelectorAll('details:not([open])'));
     closedBeforePrint.forEach(d => d.open = true);
   });
