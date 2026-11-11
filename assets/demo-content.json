@@ -7,9 +7,16 @@
     "mode": "source-limited",
     "scope": "excerpt",
     "coverage": "完整展示三段合成材料及一条参考文献，用于演示排版、引文跳转与来源区分；不对应任何真实论文。",
-    "expected_block_ids": ["S001", "S002", "S003", "R001"],
+    "expected_block_ids": [
+      "S001",
+      "S002",
+      "S003",
+      "R001"
+    ],
     "missing": [],
-    "notes": ["以下英文、中文及示例数据均为合成测试内容，不得用于学术引用。"]
+    "notes": [
+      "以下英文、中文及示例数据均为合成测试内容，不得用于学术引用。"
+    ]
   },
   "sections": [
     {
@@ -19,28 +26,85 @@
         {
           "id": "S001",
           "kind": "paragraph",
-          "locator": {"label": "合成材料 · 第 1 段"},
+          "locator": {
+            "label": "合成材料 · 第 1 段"
+          },
           "en": "Redundant execution can detect transient faults, but duplicating every operation consumes limited resources. We define selective replication as duplicating only operations designated by a configurable policy. We argue that selective replication can improve fault detection within a fixed resource budget. A synthetic background reference is provided in [1].",
           "zh": "冗余执行能够检测瞬态故障，但复制所有操作会消耗有限的资源。本文将选择性复制定义为：仅对可配置策略指定的操作进行复制。我们的核心主张是，在资源预算固定的条件下，选择性复制能够改善故障检测效果。合成的背景文献见 [1]。",
           "highlights": [
-            {"category": "term", "quote": "selective replication", "occurrence": 1},
-            {"category": "thesis", "quote": "selective replication can improve fault detection within a fixed resource budget"}
+            {
+              "category": "term",
+              "quote": "selective replication",
+              "occurrence": 1
+            },
+            {
+              "category": "thesis",
+              "quote": "selective replication can improve fault detection within a fixed resource budget"
+            }
           ],
           "author": [
             {
               "text": "作者将选择性复制界定为仅复制可配置策略指定的操作。",
-              "evidence": [{"ref": "S001", "quote": "We define selective replication as duplicating only operations designated by a configurable policy."}]
+              "evidence": [
+                {
+                  "ref": "S001",
+                  "quote": "We define selective replication as duplicating only operations designated by a configurable policy."
+                }
+              ]
             },
             {
               "text": "作者提出，选择性复制可在固定资源预算内改善故障检测效果。",
-              "evidence": [{"ref": "S001", "quote": "We argue that selective replication can improve fault detection within a fixed resource budget."}]
+              "evidence": [
+                {
+                  "ref": "S001",
+                  "quote": "We argue that selective replication can improve fault detection within a fixed resource budget."
+                }
+              ]
             }
           ],
           "analysis": {
-            "function": {"text": "引出资源约束下的研究问题，并提出中心论点。", "reason": "段落从全面复制的资源代价转向选择性复制的定义，最后明确给出主张。", "refs": ["S001"]},
-            "logic": {"text": "建立后续证据需要回答的比较问题。", "reason": "“固定资源预算”限定了比较条件，后续评估需要说明改善相对于哪一种基线。", "refs": ["S001", "S002"]},
-            "technique": {"text": "先界定概念，再提出带约束的主张。", "reason": "定义句降低术语歧义，预算限定使主张具有可检验的边界。", "refs": ["S001"]},
-            "caveat": {"text": "本段尚未说明策略如何选择操作。", "reason": "第一段只给出可配置策略这一抽象描述，不能据此推断具体筛选机制。", "refs": ["S001"]}
+            "function": {
+              "text": "引出资源约束下的研究问题，并提出中心论点。",
+              "reason": "段落从全面复制的资源代价转向选择性复制的定义，最后明确给出主张。",
+              "refs": [
+                "S001"
+              ]
+            },
+            "logic": {
+              "text": "建立后续证据需要回答的比较问题。",
+              "reason": "“固定资源预算”限定了比较条件，后续评估需要说明改善相对于哪一种基线。",
+              "refs": [
+                "S001",
+                "S002"
+              ]
+            },
+            "technique": {
+              "text": "先界定概念，再提出带约束的主张。",
+              "reason": "定义句降低术语歧义，预算限定使主张具有可检验的边界。",
+              "refs": [
+                "S001"
+              ]
+            },
+            "caveat": {
+              "text": "本段尚未说明策略如何选择操作。",
+              "reason": "第一段只给出可配置策略这一抽象描述，不能据此推断具体筛选机制。",
+              "refs": [
+                "S001"
+              ]
+            },
+            "insights": [
+              {
+                "lens": "assumption",
+                "title": "固定预算使选择策略成为真正的比较对象",
+                "text": "在这个合成例子中，改善主张来自资源分配方式，而不是增加复制总量。",
+                "reason": "S001 限定固定预算，S002 也在相同预算下比较两种策略，问题与检验条件对应。",
+                "implication": "这是一处证据设计上的优点；策略如何选择操作仍需另行描述。",
+                "refs": [
+                  "S001",
+                  "S002"
+                ]
+              }
+            ]
           }
         }
       ]
@@ -52,28 +116,98 @@
         {
           "id": "S002",
           "kind": "paragraph",
-          "locator": {"label": "合成材料 · 第 2 段"},
+          "locator": {
+            "label": "合成材料 · 第 2 段"
+          },
           "en": "We compared a selective policy with uniform replication using the same replication budget on three synthetic workloads. Across 300 injected transient faults per policy, the selective policy detected 264 faults, whereas uniform replication detected 231. These results support a detection benefit under the tested conditions.",
           "zh": "我们在三种合成工作负载上，以相同的复制预算比较选择性策略与均匀复制策略。对每种策略均注入 300 次瞬态故障，选择性策略检测到其中 264 次，均匀复制策略检测到 231 次。这些结果支持选择性策略在所测试条件下具有检测优势。",
           "highlights": [
-            {"category": "method", "quote": "using the same replication budget on three synthetic workloads"},
-            {"category": "evidence", "quote": "the selective policy detected 264 faults, whereas uniform replication detected 231"}
+            {
+              "category": "method",
+              "quote": "using the same replication budget on three synthetic workloads"
+            },
+            {
+              "category": "evidence",
+              "quote": "the selective policy detected 264 faults, whereas uniform replication detected 231"
+            }
           ],
           "author": [
             {
               "text": "作者报告，两种策略的复制预算相同，评估对象为三种合成工作负载。",
-              "evidence": [{"ref": "S002", "quote": "We compared a selective policy with uniform replication using the same replication budget on three synthetic workloads."}]
+              "evidence": [
+                {
+                  "ref": "S002",
+                  "quote": "We compared a selective policy with uniform replication using the same replication budget on three synthetic workloads."
+                }
+              ]
             },
             {
               "text": "每种策略各注入 300 次故障，选择性策略检测到 264 次，均匀复制检测到 231 次。",
-              "evidence": [{"ref": "S002", "quote": "Across 300 injected transient faults per policy, the selective policy detected 264 faults, whereas uniform replication detected 231."}]
+              "evidence": [
+                {
+                  "ref": "S002",
+                  "quote": "Across 300 injected transient faults per policy, the selective policy detected 264 faults, whereas uniform replication detected 231."
+                }
+              ]
             }
           ],
           "analysis": {
-            "function": {"text": "交代比较方法并提供定量依据。", "reason": "同一预算、明确基线和检测计数共同回应第一段的受约束主张。", "refs": ["S001", "S002"]},
-            "logic": {"text": "把中心论点推进到所测条件下的经验支持。", "reason": "检测计数提供方向一致的支持，但论据范围限于这三种合成工作负载。", "refs": ["S002"]},
-            "technique": {"text": "通过控制资源预算提高比较的相关性。", "reason": "预算条件与第一段主张相同，使该比较直接回应资源约束问题。", "refs": ["S001", "S002"]},
-            "caveat": {"text": "这三段材料不足以判断结果的不确定性。", "reason": "未给出故障采样分布、重复实验或区间估计；此观察不等于作者未在其他材料中报告这些信息。", "refs": ["S002", "S003"]}
+            "function": {
+              "text": "交代比较方法并提供定量依据。",
+              "reason": "同一预算、明确基线和检测计数共同回应第一段的受约束主张。",
+              "refs": [
+                "S001",
+                "S002"
+              ]
+            },
+            "logic": {
+              "text": "把中心论点推进到所测条件下的经验支持。",
+              "reason": "检测计数提供方向一致的支持，但论据范围限于这三种合成工作负载。",
+              "refs": [
+                "S002"
+              ]
+            },
+            "technique": {
+              "text": "通过控制资源预算提高比较的相关性。",
+              "reason": "预算条件与第一段主张相同，使该比较直接回应资源约束问题。",
+              "refs": [
+                "S001",
+                "S002"
+              ]
+            },
+            "caveat": {
+              "text": "这三段材料不足以判断结果的不确定性。",
+              "reason": "未给出故障采样分布、重复实验或区间估计；此观察不等于作者未在其他材料中报告这些信息。",
+              "refs": [
+                "S002",
+                "S003"
+              ]
+            },
+            "insights": [
+              {
+                "lens": "quantitative",
+                "title": "提高 11 个百分点，不等于提高 11%",
+                "text": "按合成数据计算，检测率为 88% 与 77%，相差 11 个百分点，相对提升约 14.3%。",
+                "reason": "模型复算：264/300=88%，231/300=77%；(264−231)/231≈14.3%。",
+                "implication": "这些数值只描述点估计，不能单凭检测总数判断统计显著性或负载间一致性。",
+                "check": "核对各负载计数、注入是否配对以及独立采样单位，再决定如何估计不确定性。",
+                "refs": [
+                  "S002"
+                ]
+              },
+              {
+                "lens": "comparison",
+                "title": "同预算控制了一个混杂因素",
+                "text": "总资源相同有助于把差异归因于策略，但还需核对两组故障暴露是否可比。",
+                "reason": "所给三段只交代每策略 300 次注入，没有说明地址/时刻分布或配对关系。",
+                "implication": "检测更多支持局部收益；尚不足以排除注入组成差异的影响。",
+                "check": "在同一故障集合上配对比较，或报告抽样分布与分层结果。",
+                "refs": [
+                  "S001",
+                  "S002"
+                ]
+              }
+            ]
           }
         }
       ]
@@ -85,28 +219,78 @@
         {
           "id": "S003",
           "kind": "paragraph",
-          "locator": {"label": "合成材料 · 第 3 段"},
+          "locator": {
+            "label": "合成材料 · 第 3 段"
+          },
           "en": "Although the selective policy improved detection in this experiment, the workloads were synthetic and permanent faults were not tested. We therefore limit our conclusion to transient faults under the evaluated workloads. Further evaluation is needed before extending the claim to deployed systems.",
           "zh": "尽管选择性策略在本次实验中提高了检测效果，但所用工作负载均为合成负载，且实验未覆盖永久性故障。因此，我们将结论限定于所评估工作负载下的瞬态故障。在把这一主张推广到实际部署系统之前，仍需进一步评估。",
           "highlights": [
-            {"category": "concession", "quote": "the workloads were synthetic and permanent faults were not tested"},
-            {"category": "thesis", "quote": "limit our conclusion to transient faults under the evaluated workloads"}
+            {
+              "category": "concession",
+              "quote": "the workloads were synthetic and permanent faults were not tested"
+            },
+            {
+              "category": "thesis",
+              "quote": "limit our conclusion to transient faults under the evaluated workloads"
+            }
           ],
           "author": [
             {
               "text": "作者明确指出，工作负载为合成负载，永久性故障尚未测试。",
-              "evidence": [{"ref": "S003", "quote": "the workloads were synthetic and permanent faults were not tested"}]
+              "evidence": [
+                {
+                  "ref": "S003",
+                  "quote": "the workloads were synthetic and permanent faults were not tested"
+                }
+              ]
             },
             {
               "text": "作者将结论限定为所测工作负载下的瞬态故障，并要求在面向实际部署作推广前继续评估。",
-              "evidence": [{"ref": "S003", "quote": "We therefore limit our conclusion to transient faults under the evaluated workloads. Further evaluation is needed before extending the claim to deployed systems."}]
+              "evidence": [
+                {
+                  "ref": "S003",
+                  "quote": "We therefore limit our conclusion to transient faults under the evaluated workloads. Further evaluation is needed before extending the claim to deployed systems."
+                }
+              ]
             }
           ],
           "analysis": {
-            "function": {"text": "承认实验边界，并收束结论。", "reason": "让步句保留检测改善的观察，同时明确指出负载类型和故障类型的范围。", "refs": ["S003"]},
-            "logic": {"text": "防止第二段的有限证据被过度外推。", "reason": "结论的适用对象被限制在实际接受评估的条件内，与第二段证据范围相匹配。", "refs": ["S002", "S003"]},
-            "technique": {"text": "通过主动限定结论处理泛化层面的潜在异议。", "reason": "这是对段落作用的模型解释；原文明示的是测试范围有限，并未逐条列出反方论证。", "refs": ["S003"]},
-            "caveat": null
+            "function": {
+              "text": "承认实验边界，并收束结论。",
+              "reason": "让步句保留检测改善的观察，同时明确指出负载类型和故障类型的范围。",
+              "refs": [
+                "S003"
+              ]
+            },
+            "logic": {
+              "text": "防止第二段的有限证据被过度外推。",
+              "reason": "结论的适用对象被限制在实际接受评估的条件内，与第二段证据范围相匹配。",
+              "refs": [
+                "S002",
+                "S003"
+              ]
+            },
+            "technique": {
+              "text": "通过主动限定结论处理泛化层面的潜在异议。",
+              "reason": "这是对段落作用的模型解释；原文明示的是测试范围有限，并未逐条列出反方论证。",
+              "refs": [
+                "S003"
+              ]
+            },
+            "caveat": null,
+            "insights": [
+              {
+                "lens": "boundary",
+                "title": "扩大结论需要改变测试内容，而非只增加次数",
+                "text": "合成负载与永久故障是两种不同的外推边界；重复更多次原实验不会自动补齐它们。",
+                "reason": "作者分别限定了负载类型与故障类型，现有证据只落在两者的交集。",
+                "implication": "若目标是部署系统，应先明确目标任务和故障集合，再决定新增哪类验证。",
+                "refs": [
+                  "S002",
+                  "S003"
+                ]
+              }
+            ]
           }
         }
       ]
@@ -119,14 +303,29 @@
         {
           "id": "R001",
           "kind": "reference",
-          "locator": {"label": "合成材料 · 参考文献 [1]"},
+          "locator": {
+            "label": "合成材料 · 参考文献 [1]"
+          },
           "en": "[1] Reader Demo Authors. A Synthetic Background Note on Redundant Execution. Fictional reference for navigation testing only.",
           "zh": "[1] 阅读器演示作者：《冗余执行的合成背景说明》。本条为导航测试而编造，不可用于学术引用。",
           "highlights": [],
           "author": [],
           "analysis": {
-            "function": {"text": "展示参考文献条目与引文导航。", "reason": "正文引文 [1] 指向这一合成条目，可从此返回点击位置。", "refs": ["S001", "R001"]},
-            "logic": {"text": "仅用于测试导航，不提供真实论据。", "reason": "条目明确标注为合成材料，因此不能充当外部学术证据。", "refs": ["R001"]},
+            "function": {
+              "text": "展示参考文献条目与引文导航。",
+              "reason": "正文引文 [1] 指向这一合成条目，可从此返回点击位置。",
+              "refs": [
+                "S001",
+                "R001"
+              ]
+            },
+            "logic": {
+              "text": "仅用于测试导航，不提供真实论据。",
+              "reason": "条目明确标注为合成材料，因此不能充当外部学术证据。",
+              "refs": [
+                "R001"
+              ]
+            },
             "technique": null,
             "caveat": null
           }
@@ -136,14 +335,80 @@
   ],
   "overview": {
     "chain": [
-      {"stage": "问题", "type": "analysis", "text": "有限资源下，如何改善冗余执行的故障检测？", "reason": "从资源代价陈述与固定预算条件中归纳研究问题。", "refs": ["S001"]},
-      {"stage": "论点", "type": "paper", "text": "选择性复制可在固定资源预算内改善故障检测。", "evidence": [{"ref": "S001", "quote": "We argue that selective replication can improve fault detection within a fixed resource budget."}]},
-      {"stage": "证据", "type": "analysis", "text": "相同预算下，合成实验的检测计数支持该策略。", "reason": "264 与 231 的比较提供局部支持；不能据此主张一般有效。", "refs": ["S002"]},
-      {"stage": "反驳", "type": "analysis", "text": "原文通过范围限定处理泛化问题，未见独立的正式反驳。", "reason": "第三段承认限制；把这一段理解为异议处理属于模型分析。", "refs": ["S003"]},
-      {"stage": "结论", "type": "analysis", "text": "当前主张仅限于所测负载中的瞬态故障。", "reason": "按作者明确的结论边界概括，实际部署仍待验证。", "refs": ["S003"]}
+      {
+        "stage": "问题",
+        "type": "analysis",
+        "text": "有限资源下，如何改善冗余执行的故障检测？",
+        "reason": "从资源代价陈述与固定预算条件中归纳研究问题。",
+        "refs": [
+          "S001"
+        ]
+      },
+      {
+        "stage": "论点",
+        "type": "paper",
+        "text": "选择性复制可在固定资源预算内改善故障检测。",
+        "evidence": [
+          {
+            "ref": "S001",
+            "quote": "We argue that selective replication can improve fault detection within a fixed resource budget."
+          }
+        ]
+      },
+      {
+        "stage": "证据",
+        "type": "analysis",
+        "text": "相同预算下，合成实验的检测计数支持该策略。",
+        "reason": "264 与 231 的比较提供局部支持；不能据此主张一般有效。",
+        "refs": [
+          "S002"
+        ]
+      },
+      {
+        "stage": "反驳",
+        "type": "analysis",
+        "text": "原文通过范围限定处理泛化问题，未见独立的正式反驳。",
+        "reason": "第三段承认限制；把这一段理解为异议处理属于模型分析。",
+        "refs": [
+          "S003"
+        ]
+      },
+      {
+        "stage": "结论",
+        "type": "analysis",
+        "text": "当前主张仅限于所测负载中的瞬态故障。",
+        "reason": "按作者明确的结论边界概括，实际部署仍待验证。",
+        "refs": [
+          "S003"
+        ]
+      }
     ],
-    "one_sentence": {"type": "analysis", "text": "在相同复制预算和所评估的合成工作负载下，选择性复制获得了更多瞬态故障检测，推广到实际系统仍需验证。", "reason": "综合第一段主张、第二段结果和第三段限定；这是模型的跨段概括。", "refs": ["S001", "S002", "S003"]},
-    "strongest": {"type": "analysis", "text": "比较的资源约束与中心主张一致，且给出明确检测计数。", "reason": "同预算基线使核心比较直接对应论点，证据与问题关联紧密。", "refs": ["S001", "S002"]},
-    "weakest": {"type": "analysis", "text": "对实际部署系统的适用性尚未在所提供材料中建立。", "reason": "第三段明确要求进一步评估；这一判断只针对外推范围，不否定已报告的局部结果。", "refs": ["S003"]}
+    "one_sentence": {
+      "type": "analysis",
+      "text": "在相同复制预算和所评估的合成工作负载下，选择性复制获得了更多瞬态故障检测，推广到实际系统仍需验证。",
+      "reason": "综合第一段主张、第二段结果和第三段限定；这是模型的跨段概括。",
+      "refs": [
+        "S001",
+        "S002",
+        "S003"
+      ]
+    },
+    "strongest": {
+      "type": "analysis",
+      "text": "比较的资源约束与中心主张一致，且给出明确检测计数。",
+      "reason": "同预算基线使核心比较直接对应论点，证据与问题关联紧密。",
+      "refs": [
+        "S001",
+        "S002"
+      ]
+    },
+    "weakest": {
+      "type": "analysis",
+      "text": "对实际部署系统的适用性尚未在所提供材料中建立。",
+      "reason": "第三段明确要求进一步评估；这一判断只针对外推范围，不否定已报告的局部结果。",
+      "refs": [
+        "S003"
+      ]
+    }
   }
 }

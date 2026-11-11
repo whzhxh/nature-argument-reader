@@ -69,6 +69,16 @@ body.no-highlights mark{background:transparent}
 .source-quote{font-family:"Lora",Georgia,serif;font-size:12px;margin:7px 0;padding-left:10px;border-left:1px solid #b7c6d6;color:#536379;white-space:pre-wrap}
 .refs{font-size:11px;display:flex;gap:7px;flex-wrap:wrap;margin:6px 0}
 .reason{color:#687080;font-size:12px}.analysis-item+.analysis-item{border-top:1px solid #ded6e6;padding-top:9px;margin-top:10px}
+.insight{margin-top:13px}.insight+.insight{border-top:1px solid #ded6e6;padding-top:14px}
+.insight-lens{font-size:10px;color:#79618e;letter-spacing:.05em}.insight h4{font-size:14px;line-height:1.65;margin:3px 0 7px;color:var(--navy)}
+.insight p span{display:block;font-size:10px;font-weight:600;color:#655375;margin-bottom:2px}
+.insight-impact{border-left:2px solid #aa95bc;padding-left:10px;font-size:12px}
+.insight-check{background:#ffffff66;padding:8px 10px;font-size:12px;border-radius:3px}
+.argument-details{border-top:1px solid #ded6e6;margin-top:14px;padding-top:9px;font-size:12px}
+.argument-details>summary{cursor:pointer;color:#70637b;font-size:11px}.argument-details[open]>summary{margin-bottom:10px}
+.quote-details>summary,.insight-details>summary,.extra-insights>summary{cursor:pointer;font-size:11px;color:#70637b}
+.quote-details{margin-top:5px}.insight-details{margin:7px 0}.extra-insights{border-top:1px solid #ded6e6;padding-top:9px;margin-top:10px}
+.role-summary{font-size:12px}
 .uncertainty{background:#fff0d8;color:#835c27;padding:9px 12px;font-size:12px;margin-top:12px;border-left:2px solid #b78b42}
 figure{margin:18px 0}figure img{display:block;max-width:100%;max-height:850px;height:auto;margin:auto;border:1px solid var(--rule)}
 figure figcaption{font-size:11px;color:var(--muted);margin-top:6px}.overview{margin-top:52px;padding-top:20px;border-top:3px solid var(--navy)}
@@ -346,8 +356,10 @@ body.only-paper .overview [data-provenance="analysis"],body.only-analysis .overv
   }));
   window.addEventListener('scroll',queuePosition,{passive:true});
   window.addEventListener('resize',queuePosition);
+  document.addEventListener('toggle',queuePosition,true);
   let lastCitation = null;
   document.addEventListener('click',e => {
+    if (e.target.closest('summary,.controls')) hidePreview();
     const a = e.target.closest('a[href^="#"]');
     if (!a) return;
     const source = preview.contains(a) ? previewAnchor : a;
