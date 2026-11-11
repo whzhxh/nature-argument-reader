@@ -23,6 +23,7 @@ class OutputParser(HTMLParser):
         self.current = []
         self.translation_marks = 0
         self.script_count = 0
+        self.citations = []
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -30,6 +31,8 @@ class OutputParser(HTMLParser):
             self.ids.append(attrs["id"])
         if tag == "a" and attrs.get("href", "").startswith("#"):
             self.anchors.append(attrs["href"][1:])
+            if "citation-link" in attrs.get("class", "").split():
+                self.citations.append(attrs)
         if "src" in attrs:
             self.resources.append(attrs["src"])
         if tag == "script":
@@ -125,6 +128,70 @@ class ReaderTests(unittest.TestCase):
         self.data["sections"][0]["blocks"][0]["locator"]["pdf_page"] = 0
         with self.assertRaises(ValueError):
             reader.validate(self.data)
+
+    def with_references(self):
+        self.data["sections"] = [s for s in self.data["sections"] if s["id"] != "references"]
+        self.data["source"]["expected_block_ids"].remove("R001")
+        first = self.data["sections"][0]["blocks"][0]
+        first["en"] = first["en"].split(" A synthetic background reference")[0]
+        first["zh"] = first["zh"].split("合成的背景文献见")[0]
+        for number in range(1, 5):
+            block = copy.deepcopy(self.data["sections"][0]["blocks"][0])
+            block.update(id=f"R{number}", kind="reference", en=f"[{number}] Synthetic reference.",
+                         zh=f"[{number}] 合成参考文献。", highlights=[])
+            self.data["source"]["expected_block_ids"].append(block["id"])
+            if number == 1:
+                self.data["sections"].append({"id": "references", "title": "References",
+                                              "collapsed": True, "blocks": []})
+            self.data["sections"][-1]["blocks"].append(block)
+
+    def test_citation_groups_ranges_highlights_and_text_preservation(self):
+        self.with_references()
+        block = self.data["sections"][0]["blocks"][0]
+        block["en"] += " Cited [1], [2, 4] and [2–4]; unknown [99], DOI [10.123/a]."
+        block["zh"] += " 引文 [1]、[2, 4] 与 [2–4]；未知 [99]。"
+        block["highlights"].append({"category": "evidence", "quote": "Cited [1], [2,"})
+        output = reader.build(self.data, ROOT)
+        parsed = OutputParser()
+        parsed.feed(output)
+        self.assertEqual(parsed.originals, [b["en"] for s in self.data["sections"] for b in s["blocks"]])
+        self.assertEqual([a["href"] for a in parsed.citations], ["#R1", "#R2", "#R4", "#R2"] * 2)
+        self.assertEqual(len(parsed.ids), len(set(parsed.ids)))
+        self.assertTrue(set(parsed.anchors).issubset(parsed.ids))
+        self.assertEqual(parsed.translation_marks, 0)
+        self.assertNotIn('href="#R99"', output)
+        # Citation anchors contain even a partially overlapping highlight without splitting the link.
+        self.assertIn('title="查看参考文献 1"><mark class="evidence"', output)
+
+    def test_reference_mapping_is_explicit_and_unambiguous(self):
+        self.with_references()
+        refs = self.data["sections"][-1]["blocks"]
+        refs[0].update(en="One. Synthetic reference.", reference_number=1)
+        self.assertEqual(reader.bibliography_index(reader.validate(self.data))[1], "R1")
+        for changes in ({"reference_number": True}, {"reference_number": 2},
+                        {"en": "[2] Duplicate reference.", "reference_number": 2}):
+            with self.subTest(changes=changes):
+                candidate = copy.deepcopy(self.data)
+                candidate["sections"][-1]["blocks"][0].update(changes)
+                with self.assertRaises(ValueError):
+                    reader.validate(candidate)
+
+    def test_citation_opt_out_missing_targets_and_generated_id_collision(self):
+        self.with_references()
+        block = self.data["sections"][0]["blocks"][0]
+        block["en"] += " Array [1, 2]; absent [8]; partial [3–9]; reverse [4–2]."
+        block["zh"] += " 数组 [1, 2]。"
+        block["link_citations"] = False
+        parsed = OutputParser()
+        parsed.feed(reader.build(self.data, ROOT))
+        self.assertEqual(parsed.citations, [])
+        block["link_citations"] = True
+        self.data["sections"][-1]["id"] = "citation-S001-en-1"
+        parsed = OutputParser()
+        parsed.feed(reader.build(self.data, ROOT))
+        self.assertEqual([a["href"] for a in parsed.citations], ["#R1", "#R2"] * 2)
+        self.assertEqual(len(parsed.ids), len(set(parsed.ids)))
+        self.assertTrue(set(parsed.anchors).issubset(parsed.ids))
 
 
 if __name__ == "__main__":
